@@ -23,10 +23,10 @@ This progressive disclosure means Codex only reads what it needs. A loop-mode in
 The user-facing documentation lives in separate files:
 
 ```
-README.md / README_ZH.md   -- public overview
-GUIDE.md                   -- operator's manual
-EXAMPLES.md                -- real-world recipes
-INSTALL.md                 -- installation options
+README.md / docs/i18n/README_ZH.md   -- public overview
+docs/GUIDE.md                        -- operator's manual
+docs/EXAMPLES.md                     -- real-world recipes
+docs/INSTALL.md                      -- installation options
 ```
 
 ## Development workflow
@@ -65,10 +65,10 @@ The project has two layers: the **skill layer** (what Codex reads) and the **doc
 
 | If you want to change... | Edit this file |
 |--------------------------|---------------|
-| The project overview and quick start | `README.md` + `README_ZH.md` |
-| Detailed usage instructions | `GUIDE.md` |
-| Copy-paste recipes and worked examples | `EXAMPLES.md` |
-| Installation methods | `INSTALL.md` |
+| The project overview and quick start | `README.md` + `docs/i18n/README_ZH.md` |
+| Detailed usage instructions | `docs/GUIDE.md` |
+| Copy-paste recipes and worked examples | `docs/EXAMPLES.md` |
+| Installation methods | `docs/INSTALL.md` |
 
 When a skill-layer change affects user-visible behavior, update the documentation layer too.
 
@@ -82,7 +82,7 @@ When a skill-layer change affects user-visible behavior, update the documentatio
 
 4. Add field mappings to `references/interaction-wizard.md` so the wizard knows how to guide users into this mode.
 
-5. Add a section to `README.md`, `README_ZH.md`, `GUIDE.md`, and at least one recipe to `EXAMPLES.md`.
+5. Add a section to `README.md`, `docs/i18n/README_ZH.md`, `docs/GUIDE.md`, and at least one recipe to `docs/EXAMPLES.md`.
 
 6. Run `bash scripts/validate_skill_structure.sh` to verify the file structure.
 
@@ -103,7 +103,7 @@ Keep PRs focused. One logical change per PR.
 
 **High-value contributions:**
 
-- Recipes for domains not yet covered in EXAMPLES.md
+- Recipes for domains not yet covered in docs/EXAMPLES.md
 - Improvements to the interaction wizard (better questions, better defaults)
 - Protocol refinements backed by real-world testing (e.g., "the stuck recovery at 5 discards should also count no-ops")
 - Translations of documentation to new languages

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../image/banner.png" width="700" alt="Codex Autoresearch">
+  <img src="../../image/banner.png" width="700" alt="Codex Autoresearch">
 </p>
 
 <h2 align="center"><b>瞄准。迭代。抵达。</b></h2>
@@ -11,19 +11,19 @@
 <p align="center">
   <a href="https://developers.openai.com/codex/skills"><img src="https://img.shields.io/badge/Codex-Skill-blue?logo=openai&logoColor=white" alt="Codex Skill"></a>
   <a href="https://github.com/leo-lilinxiao/codex-autoresearch"><img src="https://img.shields.io/github/stars/leo-lilinxiao/codex-autoresearch?style=social" alt="GitHub Stars"></a>
-  <a href="../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
 </p>
 
 <p align="center">
-  <a href="../README.md">English</a> ·
-  <b>中文</b> ·
-  <a href="README_JA.md">日本語</a> ·
-  <a href="README_KO.md">한국어</a> ·
-  <a href="README_FR.md">Français</a> ·
-  <a href="README_DE.md">Deutsch</a> ·
-  <a href="README_ES.md">Español</a> ·
-  <a href="README_PT.md">Português</a> ·
-  <a href="README_RU.md">Русский</a>
+  <a href="../../README.md">English</a> ·
+  <b>🇨🇳 中文</b> ·
+  <a href="README_JA.md">🇯🇵 日本語</a> ·
+  <a href="README_KO.md">🇰🇷 한국어</a> ·
+  <a href="README_FR.md">🇫🇷 Français</a> ·
+  <a href="README_DE.md">🇩🇪 Deutsch</a> ·
+  <a href="README_ES.md">🇪🇸 Español</a> ·
+  <a href="README_PT.md">🇧🇷 Português</a> ·
+  <a href="README_RU.md">🇷🇺 Русский</a>
 </p>
 
 <p align="center">
@@ -421,9 +421,6 @@ iteration  commit   metric  delta   status    description
 codex-autoresearch/
   SKILL.md                          # skill 入口（Codex 加载）
   README.md                         # 英文文档
-  INSTALL.md                        # 安装指南
-  GUIDE.md                          # 操作手册
-  EXAMPLES.md                       # 按领域分类的配方集
   CONTRIBUTING.md                   # 贡献指南
   LICENSE                           # MIT
   agents/
@@ -431,14 +428,18 @@ codex-autoresearch/
   image/
     banner.png                      # 项目 banner
   docs/
-    README_ZH.md                    # 本文件
-    README_JA.md                    # 日语
-    README_KO.md                    # 韩语
-    README_FR.md                    # 法语
-    README_DE.md                    # 德语
-    README_ES.md                    # 西班牙语
-    README_PT.md                    # 葡萄牙语
-    README_RU.md                    # 俄语
+    INSTALL.md                      # 安装指南
+    GUIDE.md                        # 操作手册
+    EXAMPLES.md                     # 按领域分类的配方集
+    i18n/
+      README_ZH.md                  # 本文件
+      README_JA.md                  # 日语
+      README_KO.md                  # 韩语
+      README_FR.md                  # 法语
+      README_DE.md                  # 德语
+      README_ES.md                  # 西班牙语
+      README_PT.md                  # 葡萄牙语
+      README_RU.md                  # 俄语
   scripts/
     validate_skill_structure.sh     # 结构验证脚本
   references/
@@ -491,4 +492,4 @@ codex-autoresearch/
 
 ## 许可证
 
-MIT -- 见 [LICENSE](../LICENSE)。
+MIT -- 见 [LICENSE](../../LICENSE)。

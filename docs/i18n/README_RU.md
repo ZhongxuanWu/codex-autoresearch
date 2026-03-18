@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../image/banner.png" width="700" alt="Codex Autoresearch">
+  <img src="../../image/banner.png" width="700" alt="Codex Autoresearch">
 </p>
 
 <h2 align="center"><b>Aim. Iterate. Arrive.</b></h2>
@@ -11,19 +11,19 @@
 <p align="center">
   <a href="https://developers.openai.com/codex/skills"><img src="https://img.shields.io/badge/Codex-Skill-blue?logo=openai&logoColor=white" alt="Codex Skill"></a>
   <a href="https://github.com/leo-lilinxiao/codex-autoresearch"><img src="https://img.shields.io/github/stars/leo-lilinxiao/codex-autoresearch?style=social" alt="GitHub Stars"></a>
-  <a href="../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
 </p>
 
 <p align="center">
-  <a href="../README.md">English</a> ·
-  <a href="README_ZH.md">中文</a> ·
-  <a href="README_JA.md">日本語</a> ·
-  <a href="README_KO.md">한국어</a> ·
-  <a href="README_FR.md">Français</a> ·
-  <a href="README_DE.md">Deutsch</a> ·
-  <a href="README_ES.md">Español</a> ·
-  <a href="README_PT.md">Português</a> ·
-  <b>Русский</b>
+  <a href="../../README.md">English</a> ·
+  <a href="README_ZH.md">🇨🇳 中文</a> ·
+  <a href="README_JA.md">🇯🇵 日本語</a> ·
+  <a href="README_KO.md">🇰🇷 한국어</a> ·
+  <a href="README_FR.md">🇫🇷 Français</a> ·
+  <a href="README_DE.md">🇩🇪 Deutsch</a> ·
+  <a href="README_ES.md">🇪🇸 Español</a> ·
+  <a href="README_PT.md">🇧🇷 Português</a> ·
+  <b>🇷🇺 Русский</b>
 </p>
 
 <p align="center">
@@ -423,9 +423,6 @@ iteration  commit   metric  delta   status    description
 codex-autoresearch/
   SKILL.md                          # точка входа skill (загружается Codex)
   README.md                         # документация на английском
-  INSTALL.md                        # руководство по установке
-  GUIDE.md                          # руководство оператора
-  EXAMPLES.md                       # рецепты по областям
   CONTRIBUTING.md                   # руководство для контрибьюторов
   LICENSE                           # MIT
   agents/
@@ -433,14 +430,18 @@ codex-autoresearch/
   image/
     banner.png                      # баннер проекта
   docs/
-    README_ZH.md                    # китайский
-    README_JA.md                    # японский
-    README_KO.md                    # корейский
-    README_FR.md                    # французский
-    README_DE.md                    # немецкий
-    README_ES.md                    # испанский
-    README_PT.md                    # португальский
-    README_RU.md                    # этот файл
+    INSTALL.md                      # руководство по установке
+    GUIDE.md                        # руководство оператора
+    EXAMPLES.md                     # рецепты по областям
+    i18n/
+      README_ZH.md                  # китайский
+      README_JA.md                  # японский
+      README_KO.md                  # корейский
+      README_FR.md                  # французский
+      README_DE.md                  # немецкий
+      README_ES.md                  # испанский
+      README_PT.md                  # португальский
+      README_RU.md                  # этот файл
   scripts/
     validate_skill_structure.sh     # скрипт валидации структуры
   references/
@@ -493,4 +494,4 @@ codex-autoresearch/
 
 ## Лицензия
 
-MIT -- см. [LICENSE](../LICENSE).
+MIT -- см. [LICENSE](../../LICENSE).

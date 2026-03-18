@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../image/banner.png" width="700" alt="Codex Autoresearch">
+  <img src="../../image/banner.png" width="700" alt="Codex Autoresearch">
 </p>
 
 <h2 align="center"><b>Aim. Iterate. Arrive.</b></h2>
@@ -11,19 +11,19 @@
 <p align="center">
   <a href="https://developers.openai.com/codex/skills"><img src="https://img.shields.io/badge/Codex-Skill-blue?logo=openai&logoColor=white" alt="Codex Skill"></a>
   <a href="https://github.com/leo-lilinxiao/codex-autoresearch"><img src="https://img.shields.io/github/stars/leo-lilinxiao/codex-autoresearch?style=social" alt="GitHub Stars"></a>
-  <a href="../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
 </p>
 
 <p align="center">
-  <a href="../README.md">English</a> ·
-  <a href="README_ZH.md">中文</a> ·
-  <a href="README_JA.md">日本語</a> ·
-  <a href="README_KO.md">한국어</a> ·
-  <a href="README_FR.md">Français</a> ·
-  <a href="README_DE.md">Deutsch</a> ·
-  <a href="README_ES.md">Español</a> ·
-  <b>Português</b> ·
-  <a href="README_RU.md">Русский</a>
+  <a href="../../README.md">English</a> ·
+  <a href="README_ZH.md">🇨🇳 中文</a> ·
+  <a href="README_JA.md">🇯🇵 日本語</a> ·
+  <a href="README_KO.md">🇰🇷 한국어</a> ·
+  <a href="README_FR.md">🇫🇷 Français</a> ·
+  <a href="README_DE.md">🇩🇪 Deutsch</a> ·
+  <a href="README_ES.md">🇪🇸 Español</a> ·
+  <b>🇧🇷 Português</b> ·
+  <a href="README_RU.md">🇷🇺 Русский</a>
 </p>
 
 <p align="center">
@@ -422,9 +422,6 @@ Um resumo de progresso e impresso a cada 5 iteracoes. Execucoes limitadas imprim
 codex-autoresearch/
   SKILL.md                          # ponto de entrada do skill (carregado pelo Codex)
   README.md                         # documentacao em ingles
-  INSTALL.md                        # guia de instalacao
-  GUIDE.md                          # manual de operacao
-  EXAMPLES.md                       # receitas por dominio
   CONTRIBUTING.md                   # guia de contribuicao
   LICENSE                           # MIT
   agents/
@@ -432,14 +429,18 @@ codex-autoresearch/
   image/
     banner.png                      # banner do projeto
   docs/
-    README_ZH.md                    # chines
-    README_JA.md                    # japones
-    README_KO.md                    # coreano
-    README_FR.md                    # frances
-    README_DE.md                    # alemao
-    README_ES.md                    # espanhol
-    README_PT.md                    # este arquivo
-    README_RU.md                    # russo
+    INSTALL.md                      # guia de instalacao
+    GUIDE.md                        # manual de operacao
+    EXAMPLES.md                     # receitas por dominio
+    i18n/
+      README_ZH.md                  # chines
+      README_JA.md                  # japones
+      README_KO.md                  # coreano
+      README_FR.md                  # frances
+      README_DE.md                  # alemao
+      README_ES.md                  # espanhol
+      README_PT.md                  # este arquivo
+      README_RU.md                  # russo
   scripts/
     validate_skill_structure.sh     # script de validacao de estrutura
   references/
@@ -492,4 +493,4 @@ Este projeto se baseia nas ideias do [autoresearch do Karpathy](https://github.c
 
 ## Licenca
 
-MIT -- veja [LICENSE](../LICENSE).
+MIT -- veja [LICENSE](../../LICENSE).

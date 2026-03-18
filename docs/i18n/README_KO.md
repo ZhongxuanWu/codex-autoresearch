@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../image/banner.png" width="700" alt="Codex Autoresearch">
+  <img src="../../image/banner.png" width="700" alt="Codex Autoresearch">
 </p>
 
 <h2 align="center"><b>Aim. Iterate. Arrive.</b></h2>
@@ -11,19 +11,19 @@
 <p align="center">
   <a href="https://developers.openai.com/codex/skills"><img src="https://img.shields.io/badge/Codex-Skill-blue?logo=openai&logoColor=white" alt="Codex Skill"></a>
   <a href="https://github.com/leo-lilinxiao/codex-autoresearch"><img src="https://img.shields.io/github/stars/leo-lilinxiao/codex-autoresearch?style=social" alt="GitHub Stars"></a>
-  <a href="../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  <a href="../../LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
 </p>
 
 <p align="center">
-  <a href="../README.md">English</a> ·
-  <a href="README_ZH.md">中文</a> ·
-  <a href="README_JA.md">日本語</a> ·
-  <b>한국어</b> ·
-  <a href="README_FR.md">Français</a> ·
-  <a href="README_DE.md">Deutsch</a> ·
-  <a href="README_ES.md">Español</a> ·
-  <a href="README_PT.md">Português</a> ·
-  <a href="README_RU.md">Русский</a>
+  <a href="../../README.md">English</a> ·
+  <a href="README_ZH.md">🇨🇳 中文</a> ·
+  <a href="README_JA.md">🇯🇵 日本語</a> ·
+  <b>🇰🇷 한국어</b> ·
+  <a href="README_FR.md">🇫🇷 Français</a> ·
+  <a href="README_DE.md">🇩🇪 Deutsch</a> ·
+  <a href="README_ES.md">🇪🇸 Español</a> ·
+  <a href="README_PT.md">🇧🇷 Português</a> ·
+  <a href="README_RU.md">🇷🇺 Русский</a>
 </p>
 
 <p align="center">
@@ -421,9 +421,6 @@ iteration  commit   metric  delta   status    description
 codex-autoresearch/
   SKILL.md                          # skill 진입점 (Codex가 로드)
   README.md                         # 영문 문서
-  INSTALL.md                        # 설치 가이드
-  GUIDE.md                          # 운영 매뉴얼
-  EXAMPLES.md                       # 분야별 레시피 모음
   CONTRIBUTING.md                   # 기여 가이드
   LICENSE                           # MIT
   agents/
@@ -431,14 +428,18 @@ codex-autoresearch/
   image/
     banner.png                      # 프로젝트 배너
   docs/
-    README_ZH.md                    # 중국어
-    README_JA.md                    # 일본어
-    README_KO.md                    # 본 파일
-    README_FR.md                    # 프랑스어
-    README_DE.md                    # 독일어
-    README_ES.md                    # 스페인어
-    README_PT.md                    # 포르투갈어
-    README_RU.md                    # 러시아어
+    INSTALL.md                      # 설치 가이드
+    GUIDE.md                        # 운영 매뉴얼
+    EXAMPLES.md                     # 분야별 레시피 모음
+    i18n/
+      README_ZH.md                  # 중국어
+      README_JA.md                  # 일본어
+      README_KO.md                  # 본 파일
+      README_FR.md                  # 프랑스어
+      README_DE.md                  # 독일어
+      README_ES.md                  # 스페인어
+      README_PT.md                  # 포르투갈어
+      README_RU.md                  # 러시아어
   scripts/
     validate_skill_structure.sh     # 구조 검증 스크립트
   references/
@@ -491,4 +492,4 @@ codex-autoresearch/
 
 ## 라이선스
 
-MIT -- [LICENSE](../LICENSE) 참조.
+MIT -- [LICENSE](../../LICENSE) 참조.

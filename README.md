@@ -16,14 +16,14 @@
 
 <p align="center">
   <b>English</b> ·
-  <a href="docs/README_ZH.md">中文</a> ·
-  <a href="docs/README_JA.md">日本語</a> ·
-  <a href="docs/README_KO.md">한국어</a> ·
-  <a href="docs/README_FR.md">Français</a> ·
-  <a href="docs/README_DE.md">Deutsch</a> ·
-  <a href="docs/README_ES.md">Español</a> ·
-  <a href="docs/README_PT.md">Português</a> ·
-  <a href="docs/README_RU.md">Русский</a>
+  <a href="docs/i18n/README_ZH.md">🇨🇳 中文</a> ·
+  <a href="docs/i18n/README_JA.md">🇯🇵 日本語</a> ·
+  <a href="docs/i18n/README_KO.md">🇰🇷 한국어</a> ·
+  <a href="docs/i18n/README_FR.md">🇫🇷 Français</a> ·
+  <a href="docs/i18n/README_DE.md">🇩🇪 Deutsch</a> ·
+  <a href="docs/i18n/README_ES.md">🇪🇸 Español</a> ·
+  <a href="docs/i18n/README_PT.md">🇧🇷 Português</a> ·
+  <a href="docs/i18n/README_RU.md">🇷🇺 Русский</a>
 </p>
 
 <p align="center">
@@ -32,8 +32,8 @@
   <a href="#architecture">Architecture</a> ·
   <a href="#modes">Modes</a> ·
   <a href="#configuration">Configuration</a> ·
-  <a href="GUIDE.md">Guide</a> ·
-  <a href="EXAMPLES.md">Recipes</a>
+  <a href="docs/GUIDE.md">Guide</a> ·
+  <a href="docs/EXAMPLES.md">Recipes</a>
 </p>
 
 ---
@@ -81,7 +81,7 @@ Codex: Starting -- baseline: 47. Iterating until interrupted.
 
 Each improvement stacks. Each failure reverts. Everything is logged.
 
-See [INSTALL.md](INSTALL.md) for more install options. See [GUIDE.md](GUIDE.md) for full operator's manual.
+See [INSTALL.md](docs/INSTALL.md) for more install options. See [GUIDE.md](docs/GUIDE.md) for full operator's manual.
 
 ---
 
@@ -366,7 +366,7 @@ Codex: Detected: PR to main with 3 commits.
 You:   Dry run first.
 ```
 
-See [GUIDE.md](GUIDE.md) for detailed usage and advanced options for each mode.
+See [GUIDE.md](docs/GUIDE.md) for detailed usage and advanced options for each mode.
 
 ---
 
@@ -421,9 +421,6 @@ Progress summaries print every 5 iterations. Bounded runs print a final baseline
 codex-autoresearch/
   SKILL.md                          # skill entrypoint (loaded by Codex)
   README.md                         # this file
-  INSTALL.md                        # installation guide
-  GUIDE.md                          # operator's manual
-  EXAMPLES.md                       # recipes by domain
   CONTRIBUTING.md                   # contributor guide
   LICENSE                           # MIT
   agents/
@@ -431,14 +428,18 @@ codex-autoresearch/
   image/
     banner.png                      # project banner
   docs/
-    README_ZH.md                    # Chinese
-    README_JA.md                    # Japanese
-    README_KO.md                    # Korean
-    README_FR.md                    # French
-    README_DE.md                    # German
-    README_ES.md                    # Spanish
-    README_PT.md                    # Portuguese
-    README_RU.md                    # Russian
+    INSTALL.md                      # installation guide
+    GUIDE.md                        # operator's manual
+    EXAMPLES.md                     # recipes by domain
+    i18n/
+      README_ZH.md                  # Chinese
+      README_JA.md                  # Japanese
+      README_KO.md                  # Korean
+      README_FR.md                  # French
+      README_DE.md                  # German
+      README_ES.md                  # Spanish
+      README_PT.md                  # Portuguese
+      README_RU.md                  # Russian
   scripts/
     validate_skill_structure.sh     # structure validator
   references/
