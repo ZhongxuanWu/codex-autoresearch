@@ -93,7 +93,7 @@ Every iterating mode (loop, debug, fix, security) shares the same cycle:
 6. **Decide** -- metric improved and guard passed = keep; otherwise revert
 7. **Log** -- append result to `research-results.tsv`
 
-Revert uses `git reset --hard HEAD~1`. If that fails for any reason, falls back to `git revert`.
+Revert uses `git reset --hard HEAD~1`. If that fails for any reason, falls back to `git revert --no-edit HEAD`.
 
 ### Verify and Guard: two gates, two questions
 
