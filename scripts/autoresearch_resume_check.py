@@ -12,8 +12,8 @@ from autoresearch_helpers import (
     decimal_to_json_number,
     log_summary,
     parse_results_log,
-    read_json,
-    resolve_state_path,
+    read_state_payload,
+    resolve_state_path_for_log,
     write_json_atomic,
 )
 
@@ -25,7 +25,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--results-path", default="research-results.tsv")
     parser.add_argument(
         "--state-path",
-        help="State JSON path. Defaults to autoresearch-state.json, or the exec scratch state if present.",
+        help=(
+            "State JSON path. Defaults to autoresearch-state.json, except logs tagged "
+            "with '# mode: exec' default to the deterministic exec scratch state."
+        ),
     )
     parser.add_argument(
         "--write-repaired-state",
@@ -40,11 +43,8 @@ def main() -> int:
     args = parser.parse_args()
 
     results_path = Path(args.results_path)
-    state_path = resolve_state_path(args.state_path)
 
     results_exists = results_path.exists()
-    state_exists = state_path.exists()
-
     parsed = None
     reconstructed = None
     direction = None
@@ -59,11 +59,14 @@ def main() -> int:
         except AutoresearchError as exc:
             tsv_error = str(exc)
 
+    state_path = resolve_state_path_for_log(args.state_path, parsed)
+    state_exists = state_path.exists()
+
     state_payload = None
     state_error = None
     if state_exists:
         try:
-            state_payload = read_json(state_path)
+            state_payload = read_state_payload(state_path)
             json_direction = state_payload.get("config", {}).get("direction")
             if reconstructed is not None and json_direction not in {direction, None}:
                 state_error = (

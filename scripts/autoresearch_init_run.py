@@ -64,6 +64,7 @@ def main() -> int:
     comments = [f"# metric_direction: {args.direction}"]
     if args.environment_summary:
         comments.insert(0, f"# environment: {args.environment_summary}")
+    comments.append(f"# mode: {args.mode}")
     if args.run_tag:
         comments.append(f"# run_tag: {args.run_tag}")
     comments.append(f"# parallel: {args.parallel_mode}")

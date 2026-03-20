@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 import subprocess
 from pathlib import Path
 
@@ -12,6 +13,12 @@ from autoresearch_helpers import (
     improvement,
     log_summary,
     parse_results_log,
+)
+
+
+BUNDLED_HELPER_RE = re.compile(
+    r"(?:\.agents/skills|\.codex/skills)/[^\s\"']+/scripts/"
+    r"autoresearch_(init_run|record_iteration|resume_check|select_parallel_batch|exec_state)\.py\b"
 )
 
 
@@ -30,6 +37,7 @@ def parse_args() -> argparse.Namespace:
     exec_parser = subparsers.add_parser("exec", help="Check exec-mode artifact invariants.")
     exec_parser.add_argument("--repo", required=True)
     exec_parser.add_argument("--last-message-file")
+    exec_parser.add_argument("--event-log")
     exec_parser.add_argument("--lessons-sha256")
     exec_parser.add_argument("--expect-prev-results", action="store_true")
     exec_parser.add_argument("--expect-prev-state", action="store_true")
@@ -43,6 +51,55 @@ def parse_args() -> argparse.Namespace:
     interactive_parser.add_argument("--expect-improvement", action="store_true")
 
     return parser.parse_args()
+
+
+def commit_exists(repo: Path, commit: str) -> bool:
+    completed = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "--verify", f"{commit}^{{commit}}"],
+        capture_output=True,
+        text=True,
+    )
+    return completed.returncode == 0
+
+
+def validate_keep_rows_have_commits(repo: Path, parsed) -> None:
+    for row in parsed.rows:
+        if row.status == "keep" and row.commit == "-":
+            raise AutoresearchError(
+                f"keep row at {row.iteration} is missing a commit hash"
+            )
+        if row.commit != "-" and (repo / ".git").exists() and not commit_exists(repo, row.commit):
+            raise AutoresearchError(
+                f"results log references unknown commit {row.commit!r} at iteration {row.iteration}"
+            )
+
+
+def validate_exec_event_log(event_log: Path) -> None:
+    if not event_log.exists():
+        raise AutoresearchError(f"missing exec event log: {event_log}")
+
+    event_text = event_log.read_text(encoding="utf-8")
+    helper_matches = BUNDLED_HELPER_RE.findall(event_text)
+    if not helper_matches:
+        raise AutoresearchError(
+            "exec run did not execute bundled helper scripts via the skill path"
+        )
+
+    required_helpers = {
+        "init_run": "autoresearch_init_run.py",
+        "exec_state": "autoresearch_exec_state.py",
+    }
+    for helper_key, helper_name in required_helpers.items():
+        if helper_key not in helper_matches:
+            raise AutoresearchError(f"exec run did not execute {helper_name}")
+
+    if not any(
+        helper_name in helper_matches
+        for helper_name in ("record_iteration", "select_parallel_batch")
+    ):
+        raise AutoresearchError(
+            "exec run did not record iterations through the bundled helper scripts"
+        )
 
 
 def validate_exec(repo: Path, args: argparse.Namespace) -> None:
@@ -61,6 +118,7 @@ def validate_exec(repo: Path, args: argparse.Namespace) -> None:
     if direction not in {"lower", "higher"}:
         raise AutoresearchError("results log is missing a valid metric direction comment")
     summary = log_summary(parsed, direction)
+    validate_keep_rows_have_commits(repo, parsed)
 
     if summary["main_rows"] < 2:
         raise AutoresearchError("exec run did not record any main iteration beyond baseline")
@@ -91,6 +149,8 @@ def validate_exec(repo: Path, args: argparse.Namespace) -> None:
             raise AutoresearchError("missing --output-last-message file from codex exec")
         if not last_message_path.read_text(encoding="utf-8").strip():
             raise AutoresearchError("last message file is empty")
+    if args.event_log:
+        validate_exec_event_log(Path(args.event_log))
 
     print("exec invariants: OK")
 
@@ -112,6 +172,7 @@ def validate_interactive(repo: Path, args: argparse.Namespace) -> None:
     if direction not in {"lower", "higher"}:
         raise AutoresearchError("results log is missing a valid metric direction comment")
     summary = log_summary(parsed, direction)
+    validate_keep_rows_have_commits(repo, parsed)
     if summary["main_rows"] < 2:
         raise AutoresearchError("interactive run did not record any main iteration beyond baseline")
     if args.expect_improvement and not improvement(

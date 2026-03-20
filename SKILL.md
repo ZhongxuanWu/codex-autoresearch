@@ -21,7 +21,7 @@ Autonomous goal-directed iteration. Modify -> Verify -> Keep/Discard -> Repeat.
 8. Load cross-cutting protocols for iterating modes: `references/lessons-protocol.md`, `references/pivot-protocol.md`, `references/health-check-protocol.md`.
 9. Optionally load `references/hypothesis-perspectives.md`, `references/parallel-experiments-protocol.md`, `references/web-search-protocol.md` based on configuration.
 10. Parse inline config from the user prompt or skill mention.
-11. Use the bundled helper scripts for stateful artifacts when they apply: `scripts/autoresearch_init_run.py`, `scripts/autoresearch_record_iteration.py`, `scripts/autoresearch_resume_check.py`, `scripts/autoresearch_select_parallel_batch.py`.
+11. Use the bundled helper scripts for stateful artifacts when they apply. Resolve them relative to the loaded skill bundle root (`<skill-root>/scripts/...`), not the target repo root. In the common repo-local install this means commands such as `python3 .agents/skills/codex-autoresearch/scripts/autoresearch_init_run.py ...`.
 12. Execute the selected workflow exactly as written.
 13. Produce the required structured output and artifacts.
 
@@ -103,7 +103,7 @@ If required fields are missing, use the wizard contract in `references/interacti
 13. NEVER STOP. NEVER ASK "should I continue?". Keep iterating until interrupted or a hard blocker appears (see `references/autonomous-loop-protocol.md` Stop Conditions for the full definition). Examples: verify command no longer runnable, scope files deleted externally, git repo corrupted, disk full, or the same crash 5+ times in a row.
 14. When stuck (3+ consecutive discards), use the PIVOT/REFINE escalation ladder from `references/pivot-protocol.md` instead of brute-force retrying.
 15. Extract lessons after every kept iteration and every pivot (see `references/lessons-protocol.md`).
-16. Prefer the bundled helper scripts over hand-editing `research-results.tsv` or `autoresearch-state.json`.
+16. Prefer the bundled helper scripts over hand-editing `research-results.tsv` or `autoresearch-state.json`. Always call them via the skill-bundle path (`<skill-root>/scripts/...`); never call bare `scripts/autoresearch_*.py` from the target repo root unless the skill bundle itself is actually installed there.
 17. In `exec` mode, never leave repo-root `autoresearch-state.json` behind. If helper scripts need state, use the exec scratch path and clean it up before exit.
 18. After any context compaction event (the CLI warns about thread length and compaction), re-read `references/autonomous-loop-protocol.md` and `references/core-principles.md` from disk before the next iteration. Do not rely on memory of these documents after compaction.
 19. Every 10 iterations, perform the Protocol Fingerprint Check defined in Phase 8.7 of `references/autonomous-loop-protocol.md`. If any item fails, re-read all loaded protocol files from disk before continuing.

@@ -4,12 +4,12 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODE="${1:-}"
 KEEP_TEMP=1
-DANGEROUS=0
+DANGEROUS=1
 
 usage() {
   cat <<'EOF'
 Usage:
-  bash scripts/run_skill_e2e.sh exec-smoke [--dangerous] [--clean]
+  bash scripts/run_skill_e2e.sh exec-smoke [--sandboxed] [--clean]
   bash scripts/run_skill_e2e.sh interactive-smoke [--clean]
 
 Modes:
@@ -19,8 +19,12 @@ Modes:
                      for the interactive wizard + go boundary.
 
 Flags:
-  --dangerous        Pass --dangerously-bypass-approvals-and-sandbox to codex exec.
-                     Use only in the disposable temp repo created by this harness.
+  --dangerous        Legacy alias for the default exec-smoke behavior:
+                     pass --dangerously-bypass-approvals-and-sandbox to codex exec
+                     inside the disposable temp repo created by this harness.
+  --sandboxed        Force exec-smoke to use --full-auto instead. This is useful for
+                     reproducing sandbox-related blockers, but may fail protocol checks
+                     because git commit/revert writes inside .git are sandboxed.
   --clean            Delete the temp repo after the command finishes successfully.
 EOF
 }
@@ -35,6 +39,9 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --dangerous)
       DANGEROUS=1
+      ;;
+    --sandboxed)
+      DANGEROUS=0
       ;;
     --clean)
       KEEP_TEMP=0
@@ -123,6 +130,7 @@ run_exec_smoke() {
   python3 "$ROOT/scripts/check_skill_invariants.py" exec \
     --repo "$repo" \
     --last-message-file "$last_message" \
+    --event-log "$event_log" \
     --lessons-sha256 "$lessons_sha" \
     --expect-prev-results \
     --expect-prev-state \

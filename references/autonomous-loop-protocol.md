@@ -55,15 +55,17 @@ Do not create `research-results.tsv` or `autoresearch-state.json` before the bas
 After Phase 2 establishes the baseline, initialize both artifacts together:
 
 ```bash
-python3 scripts/autoresearch_init_run.py ...
+python3 <skill-root>/scripts/autoresearch_init_run.py ...
 ```
 
 This writes the baseline TSV row (`iteration = 0`) and the matching JSON snapshot in one step.
 
+Here `<skill-root>` is the directory containing the loaded `SKILL.md`. In the common repo-local install this is usually `.agents/skills/codex-autoresearch`, so the exact command becomes `python3 .agents/skills/codex-autoresearch/scripts/...`.
+
 Exec-mode exception:
 - Do not create or leave repo-root `autoresearch-state.json`.
 - Let the helper scripts use their scratch JSON state under `/tmp/codex-autoresearch-exec/...`.
-- Clean that scratch state before exit with `python3 scripts/autoresearch_exec_state.py --cleanup`.
+- Clean that scratch state before exit with `python3 <skill-root>/scripts/autoresearch_exec_state.py --cleanup`.
 
 ### Environment Probe
 
@@ -161,7 +163,7 @@ Record:
 - current commit hash,
 - a short baseline description.
 
-Immediately after the baseline is known, initialize the run artifacts with `scripts/autoresearch_init_run.py`.
+Immediately after the baseline is known, initialize the run artifacts with `<skill-root>/scripts/autoresearch_init_run.py`.
 
 If the baseline itself fails unpredictably, do not enter the optimization loop. Either repair the setup first or switch to `debug` or `fix` mode.
 
@@ -339,11 +341,11 @@ Do not hand-edit `research-results.tsv` or `autoresearch-state.json`.
 
 - For serial/main rows, prefer:
   ```bash
-  python3 scripts/autoresearch_record_iteration.py ...
+  python3 <skill-root>/scripts/autoresearch_record_iteration.py ...
   ```
 - For parallel batches, prefer:
   ```bash
-  python3 scripts/autoresearch_select_parallel_batch.py --batch-file ...
+  python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py --batch-file ...
   ```
 
 These helpers keep two key semantics consistent:
@@ -465,4 +467,4 @@ A **hard blocker** is any condition that makes continued iteration unsafe or mea
 
 Stop immediately if any hard blocker appears. Do not ask the user -- log the blocker in the completion summary.
 
-On hard blocker, the last valid `autoresearch-state.json` remains on disk. Do not attempt to update the JSON state after a hard blocker is detected. Log the blocker reason in TSV with status `blocked` and stop. The preserved JSON state enables session resume on the next invocation.
+On hard blocker, log the blocker reason in TSV with status `blocked` and stop. Keep the retained-state fields in `autoresearch-state.json` unchanged (`current_metric`, `best_metric`, `best_iteration`, `last_commit`), but it is acceptable to advance audit counters such as `iteration`, `blocked`, `last_status`, and `last_trial_*` so the JSON snapshot stays aligned with the blocked TSV row. This preserves session resume without pretending the blocker improved the retained result.

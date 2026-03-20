@@ -14,8 +14,9 @@ from autoresearch_helpers import (
     improvement,
     make_row,
     parse_decimal,
+    parse_results_log,
     require_consistent_state,
-    resolve_state_path,
+    resolve_state_path_for_log,
     write_json_atomic,
 )
 
@@ -27,7 +28,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--results-path", default="research-results.tsv")
     parser.add_argument(
         "--state-path",
-        help="State JSON path. Defaults to autoresearch-state.json, or the exec scratch state if present.",
+        help=(
+            "State JSON path. Defaults to autoresearch-state.json, except logs tagged "
+            "with '# mode: exec' default to the deterministic exec scratch state."
+        ),
     )
     parser.add_argument(
         "--batch-file",
@@ -61,8 +65,13 @@ def main() -> int:
     args = parser.parse_args()
 
     results_path = Path(args.results_path)
-    state_path = resolve_state_path(args.state_path)
-    _, payload, reconstructed, direction = require_consistent_state(results_path, state_path)
+    parsed = parse_results_log(results_path)
+    state_path = resolve_state_path_for_log(args.state_path, parsed)
+    _, payload, reconstructed, direction = require_consistent_state(
+        results_path,
+        state_path,
+        parsed=parsed,
+    )
     batch = load_batch(Path(args.batch_file))
 
     next_iteration = reconstructed["iteration"] + 1
@@ -134,27 +143,64 @@ def main() -> int:
                 ),
             )[0]
 
+    best_completed_record = None
+    if winner is None:
+        completed_records = [
+            record for record in worker_records if str(record["status"]) in {"candidate", "discard"}
+        ]
+        if completed_records:
+            if direction == "lower":
+                best_completed_record = sorted(
+                    completed_records,
+                    key=lambda record: (
+                        record["metric"],
+                        str(record["guard"]) != "pass",
+                        diff_rank(record),
+                        str(record["worker_id"]),
+                    ),
+                )[0]
+            else:
+                best_completed_record = sorted(
+                    completed_records,
+                    key=lambda record: (
+                        -record["metric"],
+                        str(record["guard"]) != "pass",
+                        diff_rank(record),
+                        str(record["worker_id"]),
+                    ),
+                )[0]
+
     main_status = "discard"
     main_commit = "-"
     main_metric = current_metric
     main_guard = "-"
     main_description = "[PARALLEL batch] no worker improved the retained metric"
+    last_trial_commit = "-"
 
     if winner is not None:
         winner_metric = parse_decimal(winner["metric_decimal"], "winner metric")
+        winner_commit = str(winner.get("commit", "-"))
+        if winner_commit == "-":
+            raise AutoresearchError(
+                f"Worker {winner['worker_id']!r} improved the metric but did not report a commit."
+            )
         main_status = "keep"
-        main_commit = str(winner.get("commit", "-"))
+        main_commit = winner_commit
         main_metric = winner_metric
         main_guard = str(winner.get("guard", "pass"))
         main_description = (
             f"[PARALLEL batch] selected worker-{winner['worker_id']}: {winner['description']}"
         )
-
-    if winner is None:
-        for record in worker_records:
-            if record["status"] in {"candidate", "discard"}:
-                main_metric = record["metric"]
-                break
+        last_trial_commit = winner_commit
+    elif best_completed_record is not None:
+        main_metric = best_completed_record["metric"]
+        main_guard = str(best_completed_record["guard"])
+        main_description = (
+            "[PARALLEL batch] no worker produced a keepable improvement; "
+            f"best discarded worker-{best_completed_record['worker_id']}: "
+            f"{best_completed_record['description']}"
+        )
+        last_trial_commit = str(best_completed_record["commit"])
 
     worker_rows: list[dict[str, str]] = []
     selected_worker_id = None if winner is None else str(winner["worker_id"])
@@ -189,17 +235,19 @@ def main() -> int:
     state = new_payload["state"]
     state["iteration"] = next_iteration
     state["last_status"] = main_status
-    state["last_trial_commit"] = main_commit
+    state["last_trial_commit"] = last_trial_commit
     state["last_trial_metric"] = decimal_to_json_number(main_metric)
 
     if main_status == "keep":
         state["keeps"] = state.get("keeps", 0) + 1
         state["current_metric"] = decimal_to_json_number(main_metric)
-        state["best_metric"] = decimal_to_json_number(main_metric)
-        state["best_iteration"] = next_iteration
         state["last_commit"] = main_commit
         state["consecutive_discards"] = 0
         state["pivot_count"] = 0
+        previous_best = parse_decimal(state["best_metric"], "best_metric")
+        if improvement(main_metric, previous_best, direction):
+            state["best_metric"] = decimal_to_json_number(main_metric)
+            state["best_iteration"] = next_iteration
     else:
         state["discards"] = state.get("discards", 0) + 1
         state["consecutive_discards"] = state.get("consecutive_discards", 0) + 1

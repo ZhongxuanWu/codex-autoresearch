@@ -132,9 +132,12 @@ Exec mode always starts fresh:
 - Do not revert prior experiment commits (assume external cleanup between CI runs).
 
 When using the bundled helper scripts in exec mode:
-- `python3 scripts/autoresearch_init_run.py --mode exec ...` defaults its JSON state to a deterministic scratch file under `/tmp/codex-autoresearch-exec/...`.
-- `python3 scripts/autoresearch_record_iteration.py ...` and `python3 scripts/autoresearch_select_parallel_batch.py ...` automatically reuse that scratch state when the repo-root JSON file is absent.
-- Before exiting, run `python3 scripts/autoresearch_exec_state.py --cleanup` so exec mode leaves only `research-results.tsv` as its persistent run artifact.
+Here `<skill-root>` is the directory containing the loaded `SKILL.md`. In the common repo-local install this is usually `.agents/skills/codex-autoresearch`.
+
+- `python3 <skill-root>/scripts/autoresearch_init_run.py --mode exec ...` defaults its JSON state to a deterministic scratch file under `/tmp/codex-autoresearch-exec/...`.
+- The initialized `research-results.tsv` header includes `# mode: exec`, so `autoresearch_resume_check.py` can rediscover the matching scratch state without a manual `--state-path`.
+- `python3 <skill-root>/scripts/autoresearch_record_iteration.py ...` and `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py ...` automatically reuse that scratch state when the repo-root JSON file is absent.
+- Before exiting, run `python3 <skill-root>/scripts/autoresearch_exec_state.py --cleanup` so exec mode leaves only `research-results.tsv` as its persistent run artifact.
 - If you override `--state-path` manually, you are responsible for removing that custom scratch file before exit.
 
 ## Constraints

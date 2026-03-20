@@ -39,6 +39,25 @@ MAIN_STATUSES = {
     "search",
     "split",
 }
+REQUIRED_STATE_FIELDS = {
+    "iteration",
+    "baseline_metric",
+    "best_metric",
+    "best_iteration",
+    "current_metric",
+    "last_commit",
+    "last_trial_commit",
+    "last_trial_metric",
+    "keeps",
+    "discards",
+    "crashes",
+    "no_ops",
+    "blocked",
+    "splits",
+    "consecutive_discards",
+    "pivot_count",
+    "last_status",
+}
 
 
 class AutoresearchError(Exception):
@@ -137,6 +156,7 @@ def resolve_state_path(
     *,
     mode: str | None = None,
     cwd: Path | None = None,
+    allow_exec_scratch_fallback: bool = False,
 ) -> Path:
     if requested_path:
         return Path(requested_path)
@@ -147,10 +167,27 @@ def resolve_state_path(
     if repo_state_path.exists():
         return repo_state_path
 
-    scratch_state_path = default_exec_state_path(cwd)
-    if scratch_state_path.exists():
-        return scratch_state_path
+    if allow_exec_scratch_fallback:
+        scratch_state_path = default_exec_state_path(cwd)
+        if scratch_state_path.exists():
+            return scratch_state_path
     return repo_state_path
+
+
+def resolve_state_path_for_log(
+    requested_path: str | None,
+    parsed: ParsedLog | None,
+    *,
+    cwd: Path | None = None,
+) -> Path:
+    mode = None if parsed is None else parsed.metadata.get("mode")
+    exec_mode = mode == "exec"
+    return resolve_state_path(
+        requested_path,
+        mode="exec" if exec_mode else None,
+        cwd=cwd,
+        allow_exec_scratch_fallback=exec_mode,
+    )
 
 
 def cleanup_exec_state(cwd: Path | None = None) -> tuple[Path, bool]:
@@ -187,6 +224,29 @@ def read_json(path: Path) -> dict[str, Any]:
         raise AutoresearchError(f"Missing JSON file: {path}") from exc
     except json.JSONDecodeError as exc:
         raise AutoresearchError(f"Invalid JSON in {path}: {exc}") from exc
+
+
+def read_state_payload(path: Path) -> dict[str, Any]:
+    payload = read_json(path)
+    if not isinstance(payload, dict):
+        raise AutoresearchError(f"Invalid state JSON in {path}: expected an object")
+    if "version" not in payload:
+        raise AutoresearchError(f"Invalid state JSON in {path}: missing version")
+
+    config = payload.get("config")
+    if not isinstance(config, dict):
+        raise AutoresearchError(f"Invalid state JSON in {path}: config must be an object")
+
+    state = payload.get("state")
+    if not isinstance(state, dict):
+        raise AutoresearchError(f"Invalid state JSON in {path}: state must be an object")
+
+    missing_fields = sorted(REQUIRED_STATE_FIELDS - state.keys())
+    if missing_fields:
+        raise AutoresearchError(
+            f"Invalid state JSON in {path}: missing state fields: {', '.join(missing_fields)}"
+        )
+    return payload
 
 
 def write_json_atomic(path: Path, payload: dict[str, Any]) -> None:
@@ -348,6 +408,12 @@ def log_summary(parsed: ParsedLog, direction: str) -> dict[str, Any]:
         main_iteration = row.main_iteration
         if main_iteration is None:
             continue
+        expected_iteration = summary["iteration"] + 1
+        if main_iteration != expected_iteration:
+            raise AutoresearchError(
+                f"Missing or out-of-order main iteration row before line {row.line_number}: "
+                f"expected {expected_iteration}, got {main_iteration}"
+            )
         summary["iteration"] = main_iteration
         summary["main_rows"] += 1
         summary["last_status"] = row.status
@@ -376,11 +442,12 @@ def log_summary(parsed: ParsedLog, direction: str) -> dict[str, Any]:
             summary["blocked"] += 1
         elif row.status == "drift":
             summary["current_metric"] = row.metric
-            summary["best_metric"] = row.metric
-            summary["best_iteration"] = main_iteration
             if row.commit != "-":
                 summary["last_commit"] = row.commit
             summary["consecutive_discards"] = 0
+            if improvement(row.metric, summary["best_metric"], direction):
+                summary["best_metric"] = row.metric
+                summary["best_iteration"] = main_iteration
         elif row.status == "refine":
             pass
         elif row.status == "pivot":
@@ -479,9 +546,14 @@ def build_state_payload(
     }
 
 
-def require_consistent_state(results_path: Path, state_path: Path) -> tuple[ParsedLog, dict[str, Any], dict[str, Any], str]:
-    parsed = parse_results_log(results_path)
-    state_payload = read_json(state_path)
+def require_consistent_state(
+    results_path: Path,
+    state_path: Path,
+    *,
+    parsed: ParsedLog | None = None,
+) -> tuple[ParsedLog, dict[str, Any], dict[str, Any], str]:
+    parsed = parsed or parse_results_log(results_path)
+    state_payload = read_state_payload(state_path)
     direction = state_payload.get("config", {}).get("direction")
     if direction not in {"lower", "higher"}:
         raise AutoresearchError("State config.direction must be 'lower' or 'higher'.")

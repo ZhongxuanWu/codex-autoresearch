@@ -6,6 +6,8 @@ This file defines how Codex should collect missing information for `codex-autore
 
 The user says one sentence. Codex figures out the rest through guided conversation. The user should never need to know field names, write key-value pairs, or understand the internal configuration format.
 
+When this file mentions `<skill-root>`, it means the directory containing the loaded `SKILL.md`.
+
 **Clarify First: The Ask-Before-Act Protocol.** Codex ALWAYS scans the repo and asks at least one round of clarifying questions before starting any loop, even if all fields seem inferable. No exceptions. A 30-second confirmation is always cheaper than 50 wasted iterations in the wrong direction.
 
 ## Global Rules
@@ -231,7 +233,7 @@ When `session-resume-protocol.md` detects a prior run with a valid `autoresearch
 
 1. Show what was detected:
    - Prior run tag, iteration count, best metric, and last status from the JSON state.
-   - The specific inconsistency reported by `scripts/autoresearch_resume_check.py` (for example retained-metric mismatch, missing main row, or stale counters).
+   - The specific inconsistency reported by `<skill-root>/scripts/autoresearch_resume_check.py` (for example retained-metric mismatch, missing main row, or stale counters).
 2. Ask exactly one question with two choices:
    - **Resume:** use the JSON `config` as the authoritative source. Briefly confirm scope, metric, and verify command in a single confirmation block.
    - **Fresh start:** rename old artifacts with `.prev` suffixes and proceed with the full wizard.

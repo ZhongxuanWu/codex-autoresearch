@@ -103,12 +103,12 @@ Every iterating mode (loop, debug, fix, security) shares the same cycle:
 
 Revert uses the rollback strategy approved during setup. In a dedicated experiment branch/worktree with pre-launch approval, it may use `git reset --hard HEAD~1`; otherwise it uses `git revert --no-edit HEAD`.
 
-Run artifacts should be updated by the helper scripts rather than hand-editing TSV or JSON:
+Run artifacts should be updated by the helper scripts rather than hand-editing TSV or JSON. Use the skill-bundle path, not the target repo's own `scripts/` directory. Here `<skill-root>` means the directory containing the loaded `SKILL.md`; in the common repo-local install this is `.agents/skills/codex-autoresearch`.
 
-- `python3 scripts/autoresearch_init_run.py`
-- `python3 scripts/autoresearch_record_iteration.py`
-- `python3 scripts/autoresearch_resume_check.py`
-- `python3 scripts/autoresearch_select_parallel_batch.py`
+- `python3 <skill-root>/scripts/autoresearch_init_run.py`
+- `python3 <skill-root>/scripts/autoresearch_record_iteration.py`
+- `python3 <skill-root>/scripts/autoresearch_resume_check.py`
+- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py`
 
 ### Verify and Guard: two gates, two questions
 
@@ -545,7 +545,7 @@ For truly long runs (overnight, multi-day), use a wrapper script that automatica
 
 ```bash
 while true; do
-  codex --approval-mode full-auto "$PROMPT"
+  codex --full-auto "$PROMPT"
   sleep 5
 done
 ```

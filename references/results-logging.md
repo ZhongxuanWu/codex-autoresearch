@@ -29,6 +29,7 @@ The first comment line declares the metric direction. Additional comment lines m
 ```text
 # environment: cpu=8 ram=16384MB gpu=A100(40GB) python=3.11 container=docker
 # metric_direction: lower
+# mode: loop
 # run_tag: any-types-v2
 # parallel: serial
 # web_search: enabled
@@ -99,15 +100,17 @@ Prefer the bundled helper scripts for stateful artifact updates:
 
 These helper scripts live in the skill bundle. Do not confuse them with the target repo's own `scripts/` directory.
 
-- `python3 scripts/autoresearch_init_run.py ...`
+Define `<skill-root>` as the directory that contains the loaded `SKILL.md`. In the common repo-local install this is usually `.agents/skills/codex-autoresearch`, so the exact command becomes `python3 .agents/skills/codex-autoresearch/scripts/...`.
+
+- `python3 <skill-root>/scripts/autoresearch_init_run.py ...`
   Initializes `research-results.tsv` and `autoresearch-state.json` together from the baseline measurement.
-- `python3 scripts/autoresearch_record_iteration.py ...`
+- `python3 <skill-root>/scripts/autoresearch_record_iteration.py ...`
   Appends one authoritative main iteration row and updates JSON state atomically.
-- `python3 scripts/autoresearch_resume_check.py ...`
+- `python3 <skill-root>/scripts/autoresearch_resume_check.py ...`
   Reconstructs retained state from the TSV and decides `full_resume`, `mini_wizard`, `tsv_fallback`, or `fresh_start`.
-- `python3 scripts/autoresearch_select_parallel_batch.py --batch-file ...`
+- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py --batch-file ...`
   Logs worker rows, appends the main batch row, and updates JSON state once per batch.
-- `python3 scripts/autoresearch_exec_state.py`
+- `python3 <skill-root>/scripts/autoresearch_exec_state.py`
   Prints the deterministic exec scratch-state path under `/tmp` and cleans it up on `--cleanup`.
 
 In exec mode, the helper scripts keep JSON state in scratch storage by default instead of repo-root `autoresearch-state.json`. Clean that scratch state before exiting so exec persists only `research-results.tsv`.
@@ -139,4 +142,4 @@ In exec mode, the helper scripts keep JSON state in scratch storage by default i
 - **Last trial match:** `state.last_trial_metric` must equal the metric on the latest integer main row.
 - **Parallel tolerance:** Worker rows (`5a`, `5b`, `5c`) are ignored for `state.iteration` matching. They provide audit detail only.
 
-During session resume, `python3 scripts/autoresearch_resume_check.py` reconstructs the retained state from the TSV and compares it with `autoresearch-state.json`. Any mismatch triggers a mini-wizard rather than a silent full resume.
+During session resume, `python3 <skill-root>/scripts/autoresearch_resume_check.py` reconstructs the retained state from the TSV and compares it with `autoresearch-state.json`. Any mismatch triggers a mini-wizard rather than a silent full resume.

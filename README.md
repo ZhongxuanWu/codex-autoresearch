@@ -482,7 +482,9 @@ See `references/exec-workflow.md`.
 Every iteration is recorded in two complementary formats:
 
 - **`research-results.tsv`** -- full audit trail, with one main row per iteration plus optional parallel worker rows
-- **`autoresearch-state.json`** -- compact state snapshot for fast session resume
+- **`autoresearch-state.json`** -- compact state snapshot for fast session resume in interactive modes
+
+In `exec` mode, the state snapshot is scratch-only under `/tmp/codex-autoresearch-exec/...` and is cleaned up before exit.
 
 ```
 iteration  commit   metric  delta   status    description
@@ -494,12 +496,13 @@ iteration  commit   metric  delta   status    description
 
 Both files stay uncommitted and are treated as autoresearch-owned artifacts, not normal experiment diffs. On session resume, the JSON state is cross-validated against a reconstructed TSV main-iteration summary instead of raw row counts. Progress summaries print every 5 iterations. Bounded runs print a final baseline-to-best summary.
 
-Stateful artifact updates are backed by four helper scripts:
+Stateful artifact updates are backed by bundled helper scripts. Call them via the installed skill path, not the target repo's own `scripts/` directory. Here `<skill-root>` means the directory containing the loaded `SKILL.md`; in the common repo-local install this is `.agents/skills/codex-autoresearch`.
 
-- `scripts/autoresearch_init_run.py`
-- `scripts/autoresearch_record_iteration.py`
-- `scripts/autoresearch_resume_check.py`
-- `scripts/autoresearch_select_parallel_batch.py`
+- `python3 <skill-root>/scripts/autoresearch_init_run.py`
+- `python3 <skill-root>/scripts/autoresearch_record_iteration.py`
+- `python3 <skill-root>/scripts/autoresearch_resume_check.py`
+- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py`
+- `python3 <skill-root>/scripts/autoresearch_exec_state.py`
 
 ---
 
@@ -555,6 +558,9 @@ codex-autoresearch/
     autoresearch_record_iteration.py # append one main iteration + update state
     autoresearch_resume_check.py    # decide full_resume / mini_wizard / fallback
     autoresearch_select_parallel_batch.py # log worker rows + batch winner
+    autoresearch_exec_state.py      # resolve / cleanup exec scratch state
+    check_skill_invariants.py       # validate real skill-run artifacts
+    run_skill_e2e.sh                # disposable Codex CLI smoke harness
   tests/
     test_autoresearch_scripts.py    # stdlib smoke tests for helper scripts
   references/

@@ -63,8 +63,10 @@ If none of these signals are present, proceed with a fresh run (normal wizard fl
 Prefer the bundled helper script over ad hoc TSV/JSON parsing:
 
 ```bash
-python3 scripts/autoresearch_resume_check.py
+python3 <skill-root>/scripts/autoresearch_resume_check.py
 ```
+
+Here `<skill-root>` is the directory containing the loaded `SKILL.md`. In the common repo-local install this is usually `.agents/skills/codex-autoresearch`.
 
 It reconstructs retained state from the TSV, tolerates parallel worker rows, and returns one of four decisions:
 
@@ -120,7 +122,7 @@ When JSON is missing or unusable but the helper reports `tsv_fallback`:
 1. Reconstruct retained state from integer main rows in `research-results.tsv`.
 2. If the user wants to resume, prefer:
    ```bash
-   python3 scripts/autoresearch_resume_check.py --write-repaired-state
+   python3 <skill-root>/scripts/autoresearch_resume_check.py --write-repaired-state
    ```
 3. Present one condensed confirmation block sourced from the reconstructed state.
 4. After confirmation, continue from the next main iteration.
@@ -176,7 +178,7 @@ For long overnight runs, use a wrapper script that automatically restarts the CL
 
 ```bash
 while true; do
-  codex --approval-mode full-auto "$PROMPT"
+  codex --full-auto "$PROMPT"
   # Session resume will detect the prior run and continue
   sleep 5
 done
