@@ -69,6 +69,8 @@ Write protocol: write to a uniquely named temporary file in the same directory, 
 
 `session_mode` distinguishes foreground runs from background managed runs. Foreground runs resume from `research-results.tsv` plus `autoresearch-state.json` alone. Background runs still require a confirmed `autoresearch-launch.json` in addition to results/state.
 
+If an existing interactive run switches from foreground to background or back again, synchronize `autoresearch-state.json` to the chosen mode before continuing. The human-facing skill flow should do this internally when it resumes in the other mode; scripted background `autoresearch_runtime_ctl.py start` performs the same sync automatically before it relaunches nested Codex sessions, and the bundled `autoresearch_set_session_mode.py` helper is available for internal or scripted foreground recovery.
+
 `config.repos` is optional for older single-repo states. When present, it is the authoritative managed-repo list: one primary repo plus any companion repos, each with its own scope. `config.scope` remains the primary repo's scope for backward-compatible callers.
 
 `state.last_repo_commits` and `state.last_trial_repo_commits` are optional multi-repo provenance maps keyed by repo path. They complement the TSV's single `commit` column, which continues to record only the primary repo commit. These maps are preserved when valid JSON state exists, but they are not reconstructed from the TSV alone and therefore are not part of the hard TSV/JSON consistency contract.

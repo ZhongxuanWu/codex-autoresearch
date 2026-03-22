@@ -556,15 +556,16 @@ The public human workflow now stays on a single entrypoint: `$codex-autoresearch
 5. In **foreground**, Codex keeps the loop in the current session. Only `research-results.tsv`, `autoresearch-state.json`, and lessons are created.
 6. In **background**, Codex writes `autoresearch-launch.json` and starts the detached runtime controller automatically.
    The two modes share the same loop protocol and repo/scope semantics, but they are mutually exclusive for a given repo/run. Do not keep both modes active against the same primary repo artifacts at once.
-7. Single-repo runs are still the default. In that case the declared scope applies only to the primary repo that owns the run-control artifacts.
-8. If the experiment spans multiple repos, either mode can declare companion repos with their own scopes. `research-results.tsv` and `autoresearch-state.json` stay anchored in the primary repo; background mode also keeps launch/runtime control files there.
+7. If you resume an existing interactive run in the other mode, continue through the same `$codex-autoresearch` entrypoint. The shared state must be synchronized to the chosen mode before continuing; scripted background `start` performs that sync automatically before it relaunches.
+8. Single-repo runs are still the default. In that case the declared scope applies only to the primary repo that owns the run-control artifacts.
+9. If the experiment spans multiple repos, either mode can declare companion repos with their own scopes. `research-results.tsv` and `autoresearch-state.json` stay anchored in the primary repo; background mode also keeps launch/runtime control files there.
    Script-level entrypoints represent this with repeated `--companion-repo-scope PATH=SCOPE` flags.
    The TSV `commit` column remains the primary repo commit; companion-repo commit provenance lives in `autoresearch-state.json`.
-9. Each background runtime cycle launches a non-interactive `codex exec` session with the runtime prompt supplied on stdin.
+10. Each background runtime cycle launches a non-interactive `codex exec` session with the runtime prompt supplied on stdin.
    Background launch manifests carry an `execution_policy`; this skill now defaults to `danger_full_access`, so detached sessions run with `--dangerously-bypass-approvals-and-sandbox` unless you explicitly opt back into the sandboxed `workspace_write` path.
-10. Before each background detached session or relaunch, the runtime controller runs `autoresearch_health_check.py` and `autoresearch_commit_gate.py` so integrity and scope safety are enforced at the control-plane boundary across all managed repos.
-11. If background `codex exec` itself cannot be launched, the runtime moves to `needs_human` instead of silently looking idle.
-12. If an explicit stop request cannot actually terminate the detached runner, the runtime also moves to `needs_human` instead of pretending the run is fully stopped.
+11. Before each background detached session or relaunch, the runtime controller runs `autoresearch_health_check.py` and `autoresearch_commit_gate.py` so integrity and scope safety are enforced at the control-plane boundary across all managed repos.
+12. If background `codex exec` itself cannot be launched, the runtime moves to `needs_human` instead of silently looking idle.
+13. If an explicit stop request cannot actually terminate the detached runner, the runtime also moves to `needs_human` instead of pretending the run is fully stopped.
 
 Foreground keeps iterating in the current session until a terminal condition, blocker, or interruption. Background continues through fresh Codex sessions in the background until a terminal condition, blocker, or explicit stop request.
 

@@ -513,6 +513,7 @@ Human-facing usage now has a single entrypoint: **`$codex-autoresearch`**.
 - **Foreground** keeps the loop in the current Codex session. It writes `research-results.tsv`, `autoresearch-state.json`, and lessons, but does not create launch/runtime control files.
 - **Background** calls `autoresearch_runtime_ctl.py launch`, atomically writes `autoresearch-launch.json`, and starts the detached runtime controller.
 - Foreground and background share the same loop protocol, metric semantics, and repo/scope rules, but they are mutually exclusive for a given repo/run. Do not run both modes at the same time against the same primary repo artifacts.
+- If you resume an existing interactive run in the other mode, keep using the same `$codex-autoresearch` entrypoint. The shared state must be synchronized to the chosen mode before continuing; scripted background `start` does that automatically, and the interactive skill flow should handle the same step for foreground continuation.
 - Single-repo runs remain the default: the declared scope applies to the primary repo that owns the run-control artifacts.
 - For cross-repo experiments, both modes can declare companion repos with their own scopes. `research-results.tsv` and `autoresearch-state.json` remain anchored in the primary repo, and background mode also keeps launch/runtime control files there.
 - In that model, the TSV `commit` column still tracks the primary repo commit, while `autoresearch-state.json` can carry per-repo commit provenance for companion repos.
@@ -586,6 +587,7 @@ codex-autoresearch/
     autoresearch_launch_gate.py     # decide fresh / resumable / needs_human before launch
     autoresearch_resume_prompt.py   # build the runtime-managed prompt from saved config
     autoresearch_runtime_ctl.py     # launch / create-launch / start / status / stop runtime controller
+    autoresearch_set_session_mode.py# internal helper for scripted interactive mode-switch recovery
     autoresearch_commit_gate.py     # git/artifact/rollback gate
     autoresearch_decision.py        # structured keep/discard/crash policy helpers
     autoresearch_health_check.py    # executable health checks
