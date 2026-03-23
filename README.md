@@ -493,31 +493,16 @@ iteration  commit   metric  delta   status    description
 
 These files stay uncommitted and are treated as autoresearch-owned artifacts, not normal experiment diffs. On session resume, the JSON state is cross-validated against a reconstructed TSV main-iteration summary instead of raw row counts. Progress summaries print every 5 iterations. Bounded runs print a final baseline-to-best summary.
 
-Stateful artifact updates are backed by bundled helper scripts. Call them via the installed skill path, not the target repo's own `scripts/` directory. Here `<skill-root>` means the directory containing the loaded `SKILL.md`; in the common repo-local install this is `.agents/skills/codex-autoresearch`.
+Stateful artifact updates are backed by bundled helper scripts under `<skill-root>/scripts/`, but most users should keep using the single human-facing entrypoint: **`$codex-autoresearch`**. Here `<skill-root>` means the directory containing the loaded `SKILL.md`; in the common repo-local install this is `.agents/skills/codex-autoresearch`.
 
-- `python3 <skill-root>/scripts/autoresearch_init_run.py`
-- `python3 <skill-root>/scripts/autoresearch_record_iteration.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_check.py`
-- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py`
-- `python3 <skill-root>/scripts/autoresearch_exec_state.py`
-- `python3 <skill-root>/scripts/autoresearch_launch_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_prompt.py`
-- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py`
-- `python3 <skill-root>/scripts/autoresearch_commit_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_health_check.py`
-- `python3 <skill-root>/scripts/autoresearch_decision.py`
-- `python3 <skill-root>/scripts/autoresearch_lessons.py`
-- `python3 <skill-root>/scripts/autoresearch_supervisor_status.py`
-
-Repo-managed control-plane helpers are repo-first by default. For example, prefer:
+When you are scripting or debugging the control plane directly, repo-managed helpers are repo-first by default. Prefer:
 
 - `python3 <skill-root>/scripts/autoresearch_resume_check.py --repo <repo>`
 - `python3 <skill-root>/scripts/autoresearch_launch_gate.py --repo <repo>`
 - `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py status --repo <repo>`
 - `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py stop --repo <repo>`
 
-`--results-path`, `--state-path`, `--launch-path`, and `--runtime-path` remain available as advanced overrides when you need non-standard artifact locations or repo-external scripting.
-The same repo-first convention also applies to `autoresearch_resume_prompt.py` and `autoresearch_supervisor_status.py` when you invoke those helpers directly.
+`--results-path`, `--state-path`, `--launch-path`, and `--runtime-path` remain available as advanced overrides when you need non-standard artifact locations or repo-external scripting. The same repo-first convention also applies to `autoresearch_resume_prompt.py` and `autoresearch_supervisor_status.py` when you invoke those helpers directly.
 
 Human-facing usage now has a single entrypoint: **`$codex-autoresearch`**.
 

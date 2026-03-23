@@ -331,8 +331,8 @@ def validate_interactive(repo: Path, args: argparse.Namespace) -> None:
     summary = log_summary(parsed, direction)
     validate_keep_rows_have_commits(repo, parsed)
     state_payload = json.loads(state_path.read_text(encoding="utf-8"))
-    if state_payload.get("session_mode") != "foreground":
-        raise AutoresearchError("foreground interactive run did not record session_mode=foreground")
+    if state_payload.get("config", {}).get("session_mode") != "foreground":
+        raise AutoresearchError("foreground interactive run did not record config.session_mode=foreground")
     if summary["main_rows"] < 2:
         raise AutoresearchError("interactive run did not record any main iteration beyond baseline")
     if args.expect_improvement and not improvement(
@@ -386,8 +386,8 @@ def validate_runtime(repo: Path, args: argparse.Namespace) -> None:
         )
     if not isinstance(launch.get("original_goal"), str) or not launch["original_goal"].strip():
         raise AutoresearchError("launch manifest is missing original_goal")
-    if launch.get("session_mode") != "background":
-        raise AutoresearchError("runtime launch manifest did not record session_mode=background")
+    if launch.get("config", {}).get("session_mode") != "background":
+        raise AutoresearchError("runtime launch manifest did not record config.session_mode=background")
     if not isinstance(runtime.get("repo"), str) or Path(runtime["repo"]).resolve() != repo:
         raise AutoresearchError("runtime state points at the wrong repo")
     if not log_path.exists():

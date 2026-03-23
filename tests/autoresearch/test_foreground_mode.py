@@ -50,7 +50,6 @@ class AutoresearchForegroundModeTest(AutoresearchScriptsTestBase):
             self.assertFalse((repo / "autoresearch-runtime.log").exists())
 
             state = json.loads(state_path.read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "foreground")
             self.assertEqual(state["config"]["session_mode"], "foreground")
             self.assertNotIn("execution_policy", state["config"])
 
@@ -93,7 +92,6 @@ class AutoresearchForegroundModeTest(AutoresearchScriptsTestBase):
             )
 
             state = json.loads((primary / "autoresearch-state.json").read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "foreground")
             self.assertEqual(
                 state["config"]["repos"],
                 [
@@ -139,7 +137,6 @@ class AutoresearchForegroundModeTest(AutoresearchScriptsTestBase):
             )
 
             state = json.loads(state_path.read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "background")
             self.assertEqual(state["config"]["execution_policy"], "danger_full_access")
 
             result = self.run_script(
@@ -153,7 +150,6 @@ class AutoresearchForegroundModeTest(AutoresearchScriptsTestBase):
             self.assertEqual(result["session_mode"], "foreground")
             self.assertEqual(result["execution_policy"], "")
             state = json.loads(state_path.read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "foreground")
             self.assertEqual(state["config"]["session_mode"], "foreground")
             self.assertNotIn("execution_policy", state["config"])
 
@@ -218,7 +214,6 @@ class AutoresearchForegroundModeTest(AutoresearchScriptsTestBase):
             self.assertIn("background runtime is still active", completed.stderr)
 
             state = json.loads(state_path.read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "background")
             self.assertEqual(state["config"]["session_mode"], "background")
 
             stopped = self.run_script(

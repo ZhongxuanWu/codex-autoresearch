@@ -164,7 +164,6 @@ class AutoresearchRuntimeControllerTest(AutoresearchScriptsTestBase):
             self.assertTrue((tmpdir / "autoresearch-runtime.prev.log").exists())
             manifest = json.loads((tmpdir / "autoresearch-launch.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["original_goal"], "New goal")
-            self.assertEqual(manifest["session_mode"], "background")
             self.assertEqual(manifest["config"]["session_mode"], "background")
 
             stopped = self.run_script(
@@ -218,7 +217,6 @@ class AutoresearchRuntimeControllerTest(AutoresearchScriptsTestBase):
             self.assertEqual(launched["status"], "running")
 
             state = json.loads((tmpdir / "autoresearch-state.json").read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "background")
             self.assertEqual(state["config"]["session_mode"], "background")
             self.assertEqual(state["config"]["execution_policy"], "danger_full_access")
 
@@ -307,7 +305,6 @@ class AutoresearchRuntimeControllerTest(AutoresearchScriptsTestBase):
             self.assertEqual(switched["session_mode"], "foreground")
 
             state = json.loads((primary / "autoresearch-state.json").read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "foreground")
             self.assertEqual(state["config"]["session_mode"], "foreground")
             self.assertNotIn("execution_policy", state["config"])
             self.assertTrue((primary / "autoresearch-launch.json").exists())
@@ -324,7 +321,6 @@ class AutoresearchRuntimeControllerTest(AutoresearchScriptsTestBase):
             self.assertEqual(restarted["status"], "running")
 
             state = json.loads((primary / "autoresearch-state.json").read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "background")
             self.assertEqual(state["config"]["session_mode"], "background")
             self.assertEqual(state["config"]["execution_policy"], "danger_full_access")
 
@@ -953,7 +949,6 @@ class AutoresearchRuntimeControllerTest(AutoresearchScriptsTestBase):
             state = json.loads(state_path.read_text(encoding="utf-8"))
             self.assertEqual(state["state"]["iteration"], 2)
             self.assertEqual(state["state"]["last_status"], "blocked")
-            self.assertEqual(state["session_mode"], "background")
             self.assertEqual(state["config"]["session_mode"], "background")
             self.assertEqual(state["supervisor"]["recommended_action"], "needs_human")
             self.assertEqual(state["supervisor"]["terminal_reason"], "blocked")

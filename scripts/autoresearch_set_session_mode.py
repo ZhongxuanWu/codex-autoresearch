@@ -99,7 +99,7 @@ def main() -> int:
                 "results_path": str(results_path),
                 "state_path": str(state_path),
                 "runtime_path": str(runtime_path),
-                "session_mode": updated.get("session_mode", ""),
+                "session_mode": updated.get("config", {}).get("session_mode", ""),
                 "execution_policy": updated.get("config", {}).get("execution_policy", ""),
             },
             indent=2,

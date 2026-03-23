@@ -11,19 +11,16 @@ Autonomous goal-directed iteration. Modify -> Verify -> Keep/Discard -> Repeat.
 
 ## When Activated
 
-1. Classify the request as `loop`, `plan`, `debug`, `fix`, `security`, `ship`, or `exec`.
+1. Classify the request as `loop`, `plan`, `debug`, `fix`, `security`, `ship`, or `exec`, and parse any inline config from the prompt.
 2. Load `references/core-principles.md` and `references/structured-output-spec.md`.
-3. Load `references/results-logging.md` when a results log is needed.
-4. Check the launch/runtime state and load `references/session-resume-protocol.md` when resuming or controlling an existing run.
-5. Load `references/environment-awareness.md` to probe hardware and toolchains.
-6. Load `references/interaction-wizard.md` only if required fields are missing (not for `exec` mode).
-7. Load the mode-specific workflow reference.
-8. Load cross-cutting protocols for iterating modes: `references/lessons-protocol.md`, `references/pivot-protocol.md`, `references/health-check-protocol.md`.
-9. Optionally load `references/hypothesis-perspectives.md`, `references/parallel-experiments-protocol.md`, `references/web-search-protocol.md` based on configuration.
-10. Parse inline config from the user prompt or skill mention.
-11. Use the bundled helper scripts for stateful artifacts and runtime control when they apply. Resolve them relative to the loaded skill bundle root (`<skill-root>/scripts/...`), not the target repo root. In the common repo-local install this means commands such as `python3 .agents/skills/codex-autoresearch/scripts/autoresearch_init_run.py ...`. For repo-managed control-plane helpers (`autoresearch_resume_check.py`, `autoresearch_launch_gate.py`, `autoresearch_resume_prompt.py`, `autoresearch_supervisor_status.py`, `autoresearch_runtime_ctl.py status/stop`), prefer `--repo <repo>` and let the helper derive default artifact paths.
-12. Execute the selected workflow exactly as written.
-13. Produce the required structured output and artifacts.
+3. Load only the additional references the current situation needs:
+   - `references/session-resume-protocol.md` when resuming or controlling an existing run
+   - `references/results-logging.md` when touching results/state artifacts
+   - `references/environment-awareness.md` before choosing hardware-sensitive work
+   - `references/interaction-wizard.md` for interactive runs that still need confirmation fields
+4. Load the mode-specific workflow reference plus only the cross-cutting protocols that actually apply (`lessons`, `pivot`, `health-check`, `parallel`, `web-search`, `hypothesis-perspectives`).
+5. Use the bundled helper scripts when stateful artifacts or runtime control are involved. Resolve them relative to the loaded skill bundle root (`<skill-root>/scripts/...`), not the target repo root. In the common repo-local install this means commands such as `python3 .agents/skills/codex-autoresearch/scripts/autoresearch_init_run.py ...`. For repo-managed control-plane helpers (`autoresearch_resume_check.py`, `autoresearch_launch_gate.py`, `autoresearch_resume_prompt.py`, `autoresearch_supervisor_status.py`, `autoresearch_runtime_ctl.py status/stop`), prefer `--repo <repo>` and let the helper derive default artifact paths.
+6. Execute the selected workflow exactly as written and produce the required structured output and artifacts.
 
 ## Core Loop
 
@@ -50,23 +47,6 @@ Autonomous goal-directed iteration. Modify -> Verify -> Keep/Discard -> Repeat.
 
 Use `Mode: <name>` in the prompt to force a specific subworkflow.
 
-## Load Order
-
-1. `references/core-principles.md` (always)
-2. `references/structured-output-spec.md` (always)
-3. `references/session-resume-protocol.md` (check for prior run)
-4. `references/environment-awareness.md` (probe hardware and toolchains)
-5. `references/results-logging.md` (when a results log is needed)
-6. `references/interaction-wizard.md` (when required fields are missing, not for exec mode)
-7. `references/autonomous-loop-protocol.md` (shared loop mechanics for all iterating modes)
-8. `references/{mode}-workflow.md` (mode-specific -- loop mode uses autonomous-loop-protocol directly)
-9. `references/lessons-protocol.md` (iterating modes -- cross-run learning)
-10. `references/pivot-protocol.md` (iterating modes -- smart stuck recovery)
-11. `references/health-check-protocol.md` (iterating modes -- self-monitoring)
-12. `references/hypothesis-perspectives.md` (when multi-lens reasoning is beneficial)
-13. `references/parallel-experiments-protocol.md` (when parallel mode is enabled)
-14. `references/web-search-protocol.md` (when web search is available and enabled)
-
 ## Required Config
 
 For the generic loop, the following fields are needed internally. Codex infers them from the user's natural language input and repo context, then fills gaps through guided conversation:
@@ -92,7 +72,7 @@ If required fields are missing, use the wizard contract in `references/interacti
 - For a new interactive run, scan the repo, ask the confirmation questions, and require an explicit run-mode choice: **foreground** or **background**.
 - If the user chooses **foreground**, keep the loop in the current Codex session. Use the shared helper scripts (`autoresearch_init_run.py`, `autoresearch_record_iteration.py`, `autoresearch_select_parallel_batch.py`, `autoresearch_supervisor_status.py`) and do not create launch/runtime control artifacts.
 - If the user chooses **background**, call `autoresearch_runtime_ctl.py launch` to persist the confirmed launch manifest and start the detached runtime controller in one step. The runtime itself should execute non-interactive `codex exec` sessions with the generated runtime prompt supplied on stdin. This skill now defaults those detached sessions to `danger_full_access` (`--dangerously-bypass-approvals-and-sandbox`) unless the user explicitly asks for the sandboxed `workspace_write` path. If the mini-wizard outcome is "fresh start", call `autoresearch_runtime_ctl.py launch --fresh-start` so prior persistent run-control artifacts are archived as part of the same handoff.
-- If the user resumes an existing interactive run in the other mode, synchronize `autoresearch-state.json` first with `autoresearch_set_session_mode.py`. Background `start` already performs the same sync automatically before it relaunches nested Codex sessions.
+- If the user resumes an existing interactive run in the other mode, synchronize `autoresearch-state.json` internally before continuing. Background `start` already performs that sync automatically before it relaunches nested Codex sessions; `autoresearch_set_session_mode.py` remains an internal/scripted recovery helper, not a normal user-facing step.
 - Treat the repo where the run starts as the **primary repo**. Single-repo runs are the default. If the task truly spans multiple codebases, declare **companion repos** explicitly and give each repo its own scope instead of stuffing absolute paths into one mixed scope string.
 - Foreground and background share the same experiment protocol, but they are mutually exclusive for a given repo/run. Never try to keep both modes active against the same `research-results.tsv` / `autoresearch-state.json` artifacts at the same time.
 - For `status`, `stop`, or `resume` requests, stay on the same skill entry. `status` and `stop` apply to background runs only; foreground runs stay in the current session.
@@ -150,7 +130,7 @@ $codex-autoresearch
 pytest is failing, 12 tests broken after the refactor
 ```
 
-Codex scans the repo, asks targeted questions to clarify your intent, then starts the loop. You never need to write key-value config.
+Codex scans the repo, asks targeted questions to clarify your intent, asks you to choose foreground or background for interactive runs, then starts the loop. You never need to write key-value config.
 
 ## References
 

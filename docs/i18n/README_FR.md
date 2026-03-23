@@ -490,23 +490,16 @@ En mode `exec`, l'instantane d'etat n'existe que dans `/tmp/codex-autoresearch-e
 
 Les deux fichiers ne sont pas commites dans git. Lors de la reprise de session, l'etat JSON est croise avec un resume reconstruit des iterations principales TSV, et non avec le simple nombre de lignes. Les resumes de progression sont affiches toutes les 5 iterations. Les executions bornees affichent un resume final de la base au meilleur resultat.
 
-Ces artefacts d'etat sont geres par les helper scripts fournis avec le skill. Appelez-les via le chemin du skill installe, et non via le repertoire `scripts/` du depot cible. Ici, `<skill-root>` designe le repertoire contenant le `SKILL.md` charge ; dans l'installation repo-locale courante, c'est `.agents/skills/codex-autoresearch`.
+Ces artefacts d'etat sont bien geres par les helper scripts fournis sous `<skill-root>/scripts/...`, mais la plupart des utilisateurs devraient rester sur l'unique point d'entree humain : **`$codex-autoresearch`**. Ici, `<skill-root>` designe le repertoire contenant le `SKILL.md` charge ; dans l'installation repo-locale courante, c'est `.agents/skills/codex-autoresearch`.
 
-- `python3 <skill-root>/scripts/autoresearch_init_run.py`
-- `python3 <skill-root>/scripts/autoresearch_record_iteration.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_check.py`
-- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py`
-- `python3 <skill-root>/scripts/autoresearch_exec_state.py`
-- `python3 <skill-root>/scripts/autoresearch_launch_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_prompt.py`
-- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py`
-- `python3 <skill-root>/scripts/autoresearch_commit_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_health_check.py`
-- `python3 <skill-root>/scripts/autoresearch_decision.py`
-- `python3 <skill-root>/scripts/autoresearch_lessons.py`
-- `python3 <skill-root>/scripts/autoresearch_supervisor_status.py`
+Si vous automatisez ou deboguez la control-plane, les helpers centres sur le repo utilisent `--repo <repo>` par defaut. Preferez alors :
 
-Les helpers de control-plane centres sur le repo utilisent `--repo <repo>` par defaut. Pour `autoresearch_resume_check.py`, `autoresearch_launch_gate.py`, `autoresearch_resume_prompt.py`, `autoresearch_supervisor_status.py`, `autoresearch_runtime_ctl.py status` et `autoresearch_runtime_ctl.py stop`, c'est la forme recommandee ; `--results-path`, `--state-path`, `--launch-path` et `--runtime-path` restent disponibles comme overrides avances.
+- `python3 <skill-root>/scripts/autoresearch_resume_check.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_launch_gate.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py status --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py stop --repo <repo>`
+
+`--results-path`, `--state-path`, `--launch-path` et `--runtime-path` restent disponibles comme overrides avances. La meme convention repo-first s'applique aussi aux appels directs de `autoresearch_resume_prompt.py` et `autoresearch_supervisor_status.py`.
 
 Pour les utilisateurs humains, il n'y a maintenant plus qu'un seul point d'entree principal : **`$codex-autoresearch`**.
 
@@ -514,7 +507,7 @@ Pour les utilisateurs humains, il n'y a maintenant plus qu'un seul point d'entre
 - En `foreground`, Codex reste dans la session courante, continue la boucle en direct et n'ecrit que `research-results.tsv`, `autoresearch-state.json` et les lessons
 - En `background`, Codex ecrit `autoresearch-launch.json` et demarre automatiquement le controleur d'execution detache
 - `foreground` et `background` partagent le meme protocole de boucle, la meme semantique de metrique et les memes regles de repo/scope, mais ils sont mutuellement exclusifs pour un meme repo/run ; n'utilisez pas les deux modes en meme temps sur les memes artefacts du depot primaire
-- Si vous voulez ensuite reprendre ce meme run interactif dans l'autre mode, restez sur la meme entree `$codex-autoresearch` ; avant la reprise, l'etat partage doit d'abord etre synchronise vers le mode cible
+- Si vous voulez ensuite reprendre ce meme run interactif dans l'autre mode, restez sur la meme entree `$codex-autoresearch` ; avant la reprise, la skill synchronise en interne l'etat partage vers le mode cible, et background `start` effectue automatiquement la meme synchronisation
 - Les executions sur un seul depot restent le cas par defaut ; dans ce cas, le scope declare ne s'applique qu'au depot primaire qui porte les artefacts de controle
 - Si l'experience couvre plusieurs depots, le manifeste de lancement confirme peut aussi declarer des depots companions avec un scope distinct pour chacun. Le preflight du runtime couvre alors tous les depots geres, tandis que `research-results.tsv`, `autoresearch-state.json` et les artefacts de controle restent ancres dans le depot primaire
 - Dans ce modele, la colonne `commit` du TSV continue de suivre uniquement le commit du depot primaire ; la provenance des commits des depots companions est conservee dans `autoresearch-state.json`

@@ -405,8 +405,6 @@ def build_state_payload(
         },
         "updated_at": utc_now(),
     }
-    if isinstance(session_mode, str) and session_mode:
-        payload["session_mode"] = session_mode
     last_repo_commits = summary.get("last_repo_commits")
     if isinstance(last_repo_commits, dict) and last_repo_commits:
         payload["state"]["last_repo_commits"] = deepcopy(last_repo_commits)
@@ -429,10 +427,8 @@ def build_launch_manifest(
     prompt_text: str | None = None,
     notes: list[str] | None = None,
 ) -> dict[str, Any]:
-    session_mode = config.get("session_mode")
     return {
         "version": 1,
-        "session_mode": session_mode if isinstance(session_mode, str) and session_mode else "",
         "mode": mode,
         "original_goal": original_goal,
         "prompt_text": prompt_text or "",
@@ -549,7 +545,6 @@ def sync_state_payload_session_mode(
         raise AutoresearchError("State config must be an object.")
 
     config["session_mode"] = session_mode
-    cloned["session_mode"] = session_mode
     if session_mode == "foreground":
         config.pop("execution_policy", None)
     elif execution_policy is not None:

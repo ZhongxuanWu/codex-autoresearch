@@ -488,23 +488,16 @@ iteration  commit   metric  delta   status    description
 
 두 파일 모두 git에 커밋하지 않습니다. 세션 재개 시 JSON 상태는 TSV 메인 반복 요약과 교차 검증되며, 단순 행 수 자체를 기준으로 삼지 않습니다. 진행 요약은 5회 반복마다 출력됩니다. 유한 실행은 마지막에 기준선에서 최고값까지의 요약을 출력합니다.
 
-이 상태 아티팩트는 skill 과 함께 제공되는 helper scripts 가 관리합니다. 대상 저장소 자체의 `scripts/` 디렉터리가 아니라 설치된 skill 경로를 통해 호출하세요. 여기서 `<skill-root>` 는 현재 로드된 `SKILL.md` 가 있는 디렉터리를 뜻하며, 일반적인 repo-local 설치에서는 `.agents/skills/codex-autoresearch` 입니다.
+이 상태 아티팩트는 `<skill-root>/scripts/...` 아래의 helper scripts 가 관리하지만, 대부분의 사용자는 계속해서 유일한 사람용 진입점인 **`$codex-autoresearch`** 만 쓰면 됩니다. 여기서 `<skill-root>` 는 현재 로드된 `SKILL.md` 가 있는 디렉터리를 뜻하며, 일반적인 repo-local 설치에서는 `.agents/skills/codex-autoresearch` 입니다.
 
-- `python3 <skill-root>/scripts/autoresearch_init_run.py`
-- `python3 <skill-root>/scripts/autoresearch_record_iteration.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_check.py`
-- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py`
-- `python3 <skill-root>/scripts/autoresearch_exec_state.py`
-- `python3 <skill-root>/scripts/autoresearch_launch_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_prompt.py`
-- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py`
-- `python3 <skill-root>/scripts/autoresearch_commit_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_health_check.py`
-- `python3 <skill-root>/scripts/autoresearch_decision.py`
-- `python3 <skill-root>/scripts/autoresearch_lessons.py`
-- `python3 <skill-root>/scripts/autoresearch_supervisor_status.py`
+control-plane 을 스크립팅하거나 디버깅할 때는 repo 중심 helper 가 기본적으로 `--repo <repo>` 를 우선 사용합니다. 다음 형태를 권장합니다.
 
-repo 중심 control-plane helper 는 기본적으로 `--repo <repo>` 를 우선 사용합니다. `autoresearch_resume_check.py`, `autoresearch_launch_gate.py`, `autoresearch_resume_prompt.py`, `autoresearch_supervisor_status.py`, `autoresearch_runtime_ctl.py status`, `autoresearch_runtime_ctl.py stop` 는 이 방식이 권장되며, `--results-path`, `--state-path`, `--launch-path`, `--runtime-path` 는 고급 override 로 계속 사용할 수 있습니다.
+- `python3 <skill-root>/scripts/autoresearch_resume_check.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_launch_gate.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py status --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py stop --repo <repo>`
+
+`--results-path`, `--state-path`, `--launch-path`, `--runtime-path` 는 고급 override 로 계속 사용할 수 있습니다. `autoresearch_resume_prompt.py` 와 `autoresearch_supervisor_status.py` 를 직접 호출할 때도 같은 repo-first 규약을 따릅니다.
 
 사람 사용자를 위한 공개 진입점은 이제 **`$codex-autoresearch`** 하나뿐입니다.
 
@@ -512,7 +505,7 @@ repo 중심 control-plane helper 는 기본적으로 `--repo <repo>` 를 우선 
 - `foreground` 에서는 Codex가 현재 세션에 머물며 계속 반복하고, `research-results.tsv`, `autoresearch-state.json`, lessons 만 기록합니다
 - `background` 에서는 Codex가 `autoresearch-launch.json` 을 기록하고 분리된 실행 컨트롤러를 자동으로 시작합니다
 - `foreground` 와 `background` 는 같은 loop 프로토콜, metric 의미, repo/scope 규칙을 공유하지만 같은 repo/run 에 대해서는 서로 배타적입니다. 같은 primary repo 아티팩트에 두 모드를 동시에 적용하지 마세요
-- 나중에 같은 interactive run 을 다른 모드로 이어가고 싶더라도, 계속 같은 `$codex-autoresearch` 진입점을 사용해야 합니다. 이어가기 전에 공유 state 를 목표 모드로 먼저 동기화해야 합니다
+- 나중에 같은 interactive run 을 다른 모드로 이어가고 싶더라도, 계속 같은 `$codex-autoresearch` 진입점을 사용해야 합니다. 이어가기 전에 skill 이 내부적으로 공유 state 를 목표 모드로 동기화하며, background `start` 도 같은 동기화를 자동으로 수행합니다
 - 단일 저장소 실행은 여전히 기본 경로이며, 이 경우 선언한 scope 는 run-control 아티팩트를 보관하는 primary repo 에만 적용됩니다
 - 실험이 여러 저장소에 걸치면, 확인된 launch manifest 에 companion repos 와 각 저장소별 scope 를 함께 선언할 수 있습니다. runtime preflight 는 모든 managed repo 를 검사하지만 `research-results.tsv`, `autoresearch-state.json`, 그리고 runtime-control 아티팩트는 계속 primary repo 에 남습니다
 - 이 모델에서 TSV 의 `commit` 열은 계속 primary repo 의 commit 만 기록하고, companion repo 별 commit provenance 는 `autoresearch-state.json` 에 저장됩니다

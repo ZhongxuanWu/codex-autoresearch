@@ -503,23 +503,16 @@ iteration  commit   metric  delta   status    description
 
 两个文件都不提交到 git。会话恢复时，JSON 状态会与重建出的 TSV 主迭代摘要交叉验证，而不是直接对比行数。进度摘要每 5 次迭代打印一次。有界运行在最后打印基线到最优的总结。
 
-这些状态工件由随 skill 打包的 helper scripts 维护。请通过已安装 skill 的路径调用它们，而不是调用目标仓库自己的 `scripts/` 目录。这里 `<skill-root>` 指当前加载的 `SKILL.md` 所在目录；常见的 repo-local 安装位置是 `.agents/skills/codex-autoresearch`。
+这些状态工件虽然由随 skill 打包的 helper scripts 在 `<skill-root>/scripts/...` 下维护，但大多数用户仍然只需要使用唯一的人类入口：**`$codex-autoresearch`**。这里 `<skill-root>` 指当前加载的 `SKILL.md` 所在目录；常见的 repo-local 安装位置是 `.agents/skills/codex-autoresearch`。
 
-- `python3 <skill-root>/scripts/autoresearch_init_run.py`
-- `python3 <skill-root>/scripts/autoresearch_record_iteration.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_check.py`
-- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py`
-- `python3 <skill-root>/scripts/autoresearch_exec_state.py`
-- `python3 <skill-root>/scripts/autoresearch_launch_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_prompt.py`
-- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py`
-- `python3 <skill-root>/scripts/autoresearch_commit_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_health_check.py`
-- `python3 <skill-root>/scripts/autoresearch_decision.py`
-- `python3 <skill-root>/scripts/autoresearch_lessons.py`
-- `python3 <skill-root>/scripts/autoresearch_supervisor_status.py`
+如果你是在做脚本化调用或调试 control-plane，则以 repo 为锚点的 helper 默认优先使用 `--repo <repo>`。例如：
 
-以 repo 为锚点的 control-plane helper 默认优先使用 `--repo <repo>`。例如 `autoresearch_resume_check.py`、`autoresearch_launch_gate.py`、`autoresearch_resume_prompt.py`、`autoresearch_supervisor_status.py`、`autoresearch_runtime_ctl.py status`、`autoresearch_runtime_ctl.py stop` 都推荐先传 `--repo`；`--results-path`、`--state-path`、`--launch-path`、`--runtime-path` 仍然保留为高级 override。
+- `python3 <skill-root>/scripts/autoresearch_resume_check.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_launch_gate.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py status --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py stop --repo <repo>`
+
+`--results-path`、`--state-path`、`--launch-path`、`--runtime-path` 仍然保留为高级 override；`autoresearch_resume_prompt.py` 和 `autoresearch_supervisor_status.py` 直接调用时也遵循同样的 repo-first 约定。
 
 对人类用户来说，现在只保留一个主要入口：**`$codex-autoresearch`**。
 
@@ -527,7 +520,7 @@ iteration  commit   metric  delta   status    description
 - 如果选择 `foreground`，Codex 会留在当前会话里持续迭代，只写 `research-results.tsv`、`autoresearch-state.json` 和 lessons，不会创建 launch/runtime 控制文件
 - 如果选择 `background`，Codex 会写入 `autoresearch-launch.json` 并启动分离的运行控制器
 - `foreground` 和 `background` 共享同一套 loop 协议、指标语义以及 repo/scope 规则，但对同一个 repo/run 来说它们是互斥的；不要同时让两种模式写同一套主仓工件
-- 如果之后想把同一个交互 run 切到另一种模式，仍然通过同一个 `$codex-autoresearch` 入口继续；继续之前，共享 state 需要先同步到目标模式
+- 如果之后想把同一个交互 run 切到另一种模式，仍然通过同一个 `$codex-autoresearch` 入口继续；继续之前，skill 会在内部先把共享 state 同步到目标模式，background `start` 也会自动完成同样的同步
 - 单仓运行仍然是默认形态；此时声明的 scope 只作用于承载 run-control 工件的主仓库
 - 如果实验跨多个仓库，确认后的 launch manifest 也可以声明 companion repos，并为每个仓库单独给出 scope。runtime preflight 会检查所有托管仓库，但 `research-results.tsv`、`autoresearch-state.json` 以及 runtime-control 工件仍然锚定在主仓库
 - 在这种模型下，TSV 的 `commit` 列仍然只记录主仓库提交；companion repo 的逐仓 commit provenance 则记录在 `autoresearch-state.json` 中

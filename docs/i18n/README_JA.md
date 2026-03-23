@@ -488,23 +488,16 @@ iteration  commit   metric  delta   status    description
 
 両方のファイルは git にコミットしません。セッション再開時、JSON 状態は TSV の主イテレーション要約とクロスバリデーションされ、不整合を検出します。生の行数そのものは判定基準にしません。進捗サマリーは 5 イテレーションごとに出力されます。有界実行では最後にベースラインから最良値までのサマリーが出力されます。
 
-これらの状態成果物は、skill に同梱された helper scripts で管理します。対象リポジトリ自身の `scripts/` ではなく、インストール済み skill のパス経由で呼び出してください。ここで `<skill-root>` は読み込まれている `SKILL.md` のあるディレクトリを指し、一般的な repo-local インストールでは `.agents/skills/codex-autoresearch` です。
+これらの状態成果物は `<skill-root>/scripts/...` 配下の helper scripts で管理されますが、ほとんどのユーザーは引き続き唯一の人間向け入口である **`$codex-autoresearch`** だけを使えば十分です。ここで `<skill-root>` は読み込まれている `SKILL.md` のあるディレクトリを指し、一般的な repo-local インストールでは `.agents/skills/codex-autoresearch` です。
 
-- `python3 <skill-root>/scripts/autoresearch_init_run.py`
-- `python3 <skill-root>/scripts/autoresearch_record_iteration.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_check.py`
-- `python3 <skill-root>/scripts/autoresearch_select_parallel_batch.py`
-- `python3 <skill-root>/scripts/autoresearch_exec_state.py`
-- `python3 <skill-root>/scripts/autoresearch_launch_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_resume_prompt.py`
-- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py`
-- `python3 <skill-root>/scripts/autoresearch_commit_gate.py`
-- `python3 <skill-root>/scripts/autoresearch_health_check.py`
-- `python3 <skill-root>/scripts/autoresearch_decision.py`
-- `python3 <skill-root>/scripts/autoresearch_lessons.py`
-- `python3 <skill-root>/scripts/autoresearch_supervisor_status.py`
+control-plane をスクリプト化したりデバッグしたりする場合、repo 基準の helper は通常 `--repo <repo>` を優先して使います。次の形を推奨します。
 
-repo を基準にする control-plane helper は、通常 `--repo <repo>` を優先して使います。`autoresearch_resume_check.py`、`autoresearch_launch_gate.py`、`autoresearch_resume_prompt.py`、`autoresearch_supervisor_status.py`、`autoresearch_runtime_ctl.py status`、`autoresearch_runtime_ctl.py stop` ではこの形が推奨です。`--results-path`、`--state-path`、`--launch-path`、`--runtime-path` は上級向け override として引き続き利用できます。
+- `python3 <skill-root>/scripts/autoresearch_resume_check.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_launch_gate.py --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py status --repo <repo>`
+- `python3 <skill-root>/scripts/autoresearch_runtime_ctl.py stop --repo <repo>`
+
+`--results-path`、`--state-path`、`--launch-path`、`--runtime-path` は上級向け override として引き続き利用できます。`autoresearch_resume_prompt.py` と `autoresearch_supervisor_status.py` を直接呼ぶ場合も、同じ repo-first 規約です。
 
 人間向けの公開入口は、いまは **`$codex-autoresearch`** ひとつだけです。
 
@@ -512,7 +505,7 @@ repo を基準にする control-plane helper は、通常 `--repo <repo>` を優
 - `foreground` では Codex は現在のセッション内に残り、そのまま反復を続けます。作られるのは `research-results.tsv`、`autoresearch-state.json`、lessons だけです
 - `background` では Codex は `autoresearch-launch.json` を書き込み、切り離された実行コントローラを自動で起動します
 - `foreground` と `background` は同じ loop プロトコル、metric の意味、repo/scope ルールを共有しますが、同じ repo/run に対しては排他的です。同じ primary repo の artifacts に対して両方を同時に走らせないでください
-- 後から同じ interactive run を別のモードで続けたい場合でも、入口は同じ `$codex-autoresearch` のままです。続行前に、共有 state を選んだモードへ先に同期させる必要があります
+- 後から同じ interactive run を別のモードで続けたい場合でも、入口は同じ `$codex-autoresearch` のままです。続行前に、skill が内部で共有 state を選んだモードへ同期し、background `start` も同じ同期を自動で行います
 - 単一リポジトリの実行は引き続きデフォルトです。この場合、宣言した scope は run-control 工程を保持する primary repo にだけ適用されます
 - 実験が複数リポジトリにまたがる場合、確認済みの launch manifest には companion repos と各 repo 固有の scope も記述できます。runtime preflight は管理対象の全 repo を検査しますが、`research-results.tsv`、`autoresearch-state.json`、runtime-control の各工件は primary repo に置かれたままです
 - このモデルでは TSV の `commit` 列は引き続き primary repo の commit だけを記録し、companion repo ごとの commit provenance は `autoresearch-state.json` に保存されます

@@ -79,7 +79,6 @@ class AutoresearchResultsRowsTest(AutoresearchScriptsTestBase):
             )
 
             state = json.loads(state_path.read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "foreground")
             self.assertEqual(state["config"]["session_mode"], "foreground")
             self.assertNotIn("execution_policy", state["config"])
             self.assertEqual(state["state"]["iteration"], 2)
@@ -186,7 +185,6 @@ class AutoresearchResultsRowsTest(AutoresearchScriptsTestBase):
             )
 
             state = json.loads(state_path.read_text(encoding="utf-8"))
-            self.assertEqual(state["session_mode"], "foreground")
             self.assertEqual(state["config"]["session_mode"], "foreground")
             self.assertEqual(
                 state["state"]["last_repo_commits"],
