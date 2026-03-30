@@ -90,7 +90,7 @@ Codex: background 実行を開始します -- ベースライン：47。
 
 ### セッション Hooks
 
-対話式 skill は、初回の repo scan 直後に足りない任意のユーザーレベル Codex hooks を自動で入れるようになりました。手動で事前インストールしたり状態を確認したい場合は次を使えます。
+対話式 skill では、これらの Codex session hooks が必須です。初回の repo scan 直後に不足していれば自動で入れます。手動で事前インストールしたり状態を確認したい場合は次を使えます。
 
 ```bash
 python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
@@ -103,10 +103,9 @@ python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py inst
 
 これらの hooks は、明らかに `codex-autoresearch` の作業だと分かる後続の Codex セッションにだけ付与されます。いま開いている foreground セッションをその場で変えることはなく、同じ repo の通常の Codex 会話も巻き込みません。
 
-- すでに開いている foreground セッションには**その場では**反映されません。
-- `background` を起動する前にインストールすれば、その run で新しく起動する入れ子の `codex exec` セッションにはすぐ効きます。
-- 管理された `background` run は設定済みの artifact path をその入れ子セッションへ明示的に渡すので、カスタム `--results-path` / `--state-path` でもそのまま機能します。
 - skill が現在のセッションで hooks を入れた直後なら、`background` はすぐにそれを使えます。
+- すでに開いている `foreground` セッションは途中から hooks を使い始めません。
+- 管理された `background` run は設定済みの artifact path をその入れ子セッションへ明示的に渡すので、カスタム `--results-path` / `--state-path` でもそのまま機能します。
 - すでに開いている `foreground` セッションは途中から hooks を使い始めません。前景でも hooks を効かせたいなら、**新しい Codex セッション**を開き、そこで現在のスレッドを開き直すか再開して同じ run を続けてください。CLI では通常 `codex resume`、アプリでは同じスレッドを新しいセッションで開き直します。
 - 今後の `foreground` セッションでも、repo 内のカスタム artifact path は repo の hook context pointer から復元できます。ただし hooks 自体は、そのセッションが明確に autoresearch の作業だと分かる場合にだけ付与されます。
 

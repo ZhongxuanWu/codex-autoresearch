@@ -93,9 +93,9 @@ Each improvement stacks. Each failure reverts. Everything is logged.
 
 See [INSTALL.md](docs/INSTALL.md) for more install options. See [GUIDE.md](docs/GUIDE.md) for full operator's manual.
 
-### Session Hooks
+### Required Session Hooks
 
-The interactive skill now auto-installs the optional user-level Codex hooks right after the initial repo scan when they are missing. If you want to preinstall or inspect them manually:
+The interactive skill requires these user-level Codex session hooks and auto-installs them right after the initial repo scan when they are missing. This bootstrap happens before the first clarification question. If you want to preinstall or inspect them manually:
 
 ```bash
 python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install

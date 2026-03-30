@@ -69,9 +69,9 @@ Expected behavior:
 - loads the relevant workflow for the request,
 - and collects any missing fields via the wizard.
 
-## Session Hooks
+## Required Session Hooks
 
-The interactive skill auto-installs the optional user-level Codex hooks right after the initial repo scan when they are missing. If you want to preinstall or inspect them manually:
+The interactive skill requires these user-level Codex session hooks and auto-installs them right after the initial repo scan when they are missing. This bootstrap happens before the first clarification question. If you want to preinstall or inspect them manually:
 
 ```bash
 python3 /absolute/path/to/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
@@ -90,7 +90,7 @@ What they do:
 
 Important:
 
-- Hooks are still optional if you are driving the helpers manually, but the interactive skill installs them for you when needed.
+- For the interactive skill, these hooks are required bootstrap infrastructure and are installed automatically when needed.
 - Hooks only attach to later Codex sessions that clearly look like `codex-autoresearch` work. They do not retroactively change the currently open foreground session, and unrelated Codex conversations in the same repo are left alone.
 - If the skill just installed them in the current session, `background` can use them immediately.
 - The currently open foreground session will not use them mid-session. To get hooks there, reopen/resume the same thread in a new Codex session. In the CLI this is often `codex resume`; in the app, reopen the same thread in a new session.

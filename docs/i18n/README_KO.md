@@ -90,7 +90,7 @@ Codex: background 실행을 시작합니다 -- 베이스라인: 47.
 
 ### 세션 Hooks
 
-대화형 skill 은 초기 repo 스캔 직후 hooks 가 없으면 선택적인 사용자 수준 Codex hooks 를 자동으로 설치합니다. 미리 수동 설치하거나 상태를 확인하고 싶다면 다음을 사용할 수 있습니다.
+대화형 skill 에서는 이 Codex session hooks 가 필수입니다. 초기 repo 스캔 직후 hooks 가 없으면 자동으로 설치합니다. 미리 수동 설치하거나 상태를 확인하고 싶다면 다음을 사용할 수 있습니다.
 
 ```bash
 python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
@@ -103,10 +103,9 @@ python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py inst
 
 이 hooks 는 이후의 Codex 세션 중에서도 `codex-autoresearch` 작업으로 분명히 보이는 세션에만 붙습니다. 이미 열려 있는 foreground 세션을 소급해서 바꾸지는 않으며, 같은 저장소 안의 일반 Codex 대화도 건드리지 않습니다.
 
-- 이미 열려 있는 foreground 세션에는 **즉시** 반영되지 않습니다.
-- `background` 를 시작하기 전에 설치하면, 그 run 에서 새로 뜨는 중첩 `codex exec` 세션에는 바로 적용됩니다.
-- 관리되는 `background` run 은 설정된 artifact 경로를 그 중첩 세션에 명시적으로 넘기므로, 사용자 지정 `--results-path` / `--state-path` 레이아웃도 그대로 동작합니다.
 - skill 이 현재 세션에서 hooks 를 방금 설치했다면 `background` 는 곧바로 그 혜택을 받을 수 있습니다.
+- 이미 열려 있는 `foreground` 세션은 중간에 hooks 를 사용하기 시작하지 않습니다.
+- 관리되는 `background` run 은 설정된 artifact 경로를 그 중첩 세션에 명시적으로 넘기므로, 사용자 지정 `--results-path` / `--state-path` 레이아웃도 그대로 동작합니다.
 - 이미 열려 있는 `foreground` 세션은 중간에 hooks 를 사용하기 시작하지 않습니다. 전경에서도 hooks 를 쓰고 싶다면 **새 Codex 세션**을 열고 현재 스레드를 다시 열거나 이어서 같은 run 을 계속하세요. CLI 에서는 보통 `codex resume` 이고, 앱에서는 같은 스레드를 새 세션에서 다시 열면 됩니다.
 - 이후의 `foreground` 세션도 저장소의 hook context pointer 를 통해 repo 내부 custom artifact path 를 다시 찾을 수 있지만, hooks 는 그 세션이 명확히 autoresearch 작업처럼 보일 때만 붙습니다.
 

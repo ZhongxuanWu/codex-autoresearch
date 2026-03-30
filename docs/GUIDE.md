@@ -77,15 +77,15 @@ Once execution begins, keep the runtime contract tiny:
 - record every completed experiment before the next one starts
 - use helper scripts for authoritative log/state updates
 
-### Session hooks
+### Required Session Hooks
 
-The interactive skill auto-installs the optional user-level Codex hooks right after the initial repo scan when they are missing. If you want to preinstall them yourself:
+The interactive skill requires these user-level Codex session hooks and auto-installs them right after the initial repo scan when they are missing. This bootstrap happens before the first clarification question. If you want to preinstall them yourself:
 
 ```bash
 python3 /absolute/path/to/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
 ```
 
-Use them as a continuity enhancer, not as a replacement for the skill:
+They provide the continuity layer for the interactive skill:
 
 - `SessionStart` re-anchors future sessions with the short runtime checklist
 - `Stop` only blocks Codex from ending a session when the autoresearch run still appears resumable
