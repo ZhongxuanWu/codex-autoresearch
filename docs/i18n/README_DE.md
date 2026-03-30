@@ -99,12 +99,12 @@ Sie ergaenzen:
 - einen `SessionStart`-Re-Anchor, der die kurze Runtime-Checkliste in spaetere neue Sitzungen erneut einbringt
 - einen `Stop`-Hook, der Codex nur dann am Beenden hindert, wenn der autoresearch-Lauf weiterhin wiederaufnehmbar aussieht
 
-Diese Hooks wirken **nur auf zukuenftige Sitzungen** und haengen sich nur an Sitzungen, die klar wie `codex-autoresearch`-Arbeit aussehen. Unabhaengige Codex-Konversationen im selben Repo bleiben unberuehrt.
+Diese Hooks haengen sich nur an spaetere Codex-Sitzungen, die klar wie `codex-autoresearch`-Arbeit aussehen. Sie veraendern die bereits geoeffnete Foreground-Sitzung nicht nachtraeglich, und unabhaengige Codex-Konversationen im selben Repo bleiben unberuehrt.
 
 - Die bereits geoeffnete Foreground-Sitzung wird sie **nicht** per Hot-Reload uebernehmen.
 - Wenn Sie sie vor dem Start von `background` installieren, uebernehmen die neuen verschachtelten `codex exec`-Sitzungen dieses Laufs sie sofort.
 - Verwaltete `background`-Laeufe reichen ihre konfigurierten Artifact-Pfade explizit an diese verschachtelten Sitzungen weiter, daher funktionieren benutzerdefinierte `--results-path`- / `--state-path`-Layouts dort weiterhin.
-- Wenn Sie den gleichen Schutz fuer `foreground` wollen, installieren Sie zuerst, oeffnen Sie dann eine **neue Codex-Sitzung** (zum Beispiel via `codex resume`) und setzen Sie den Lauf dort fort.
+- Wenn Sie den gleichen Schutz fuer `foreground` wollen, installieren Sie zuerst, oeffnen Sie dann eine **neue Codex-Sitzung** und setzen Sie denselben Lauf dort fort, indem Sie den aktuellen Thread wieder oeffnen oder fortsetzen. In der CLI ist das oft `codex resume`; in der App oeffnen Sie denselben Thread in einer neuen Sitzung.
 - Zukuenftige `foreground`-Sitzungen koennen repo-lokale benutzerdefinierte Artifact-Pfade auch ueber den Hook-Context-Pointer des Repos wiederfinden, aber die Hooks haengen sich weiterhin nur an, wenn die Sitzung klar wie autoresearch aussieht.
 
 ---

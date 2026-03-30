@@ -17,13 +17,13 @@ When this file mentions `<skill-root>`, it means the directory containing the lo
 3. ALWAYS ask at least one round of clarifying questions, even when you think you can infer everything. Show the user what you found and what you plan to do. Let them confirm or correct.
 4. Guide the user through conversation. Ask one question at a time (or batch tightly related ones). Each question must be specific and grounded in what you found in the repo.
 5. Propose concrete defaults with every question. Let the user confirm or correct.
-6. Up to 5 clarification rounds are allowed before launching. But never zero rounds.
+6. Aim to finish clarification in 1 to 3 rounds. Ask more only when a real blocker remains, and never exceed 5 rounds. Never skip clarification entirely.
 7. Present a structured confirmation summary before launching (see Confirmation Format below).
 8. The mandatory confirmation round must never collapse into a bare "foreground/background + go" prompt. Even if the only unresolved choice is run mode, first show a short repo-grounded summary of the confirmed goal, metric, verify path, and next step.
 9. The user should never see raw field names (Goal, Scope, Metric, Direction, Verify, Guard). Translate everything into natural conversation.
 10. After the user approves the summary, follow the chosen run mode directly from the same skill entrypoint. Foreground stays in the current session; background persists the confirmed launch manifest and starts the runtime controller. Do not tell the user to switch to a different wrapper command.
 11. End the confirmation summary with a short runtime checklist that reinforces execution order: baseline first, then initialize artifacts, and always log a completed experiment before starting the next one.
-12. For clearly long-running foreground/background runs, check `python3 <skill-root>/scripts/autoresearch_hooks_ctl.py status` before the final mode choice. If hooks are missing, give one short note that helps the user choose intelligently: `background` can benefit immediately if hooks are installed before launch, while the current `foreground` session cannot hot-reload them. Do not ask for installation yet, and never install them without explicit user approval.
+12. For clearly long-running foreground/background runs, check `python3 <skill-root>/scripts/autoresearch_hooks_ctl.py status` before the final mode choice. If hooks are missing, give one short mode-shaping note before the user chooses `foreground` or `background`. After the user chooses a mode, offer installation only if it is useful for that path. Never auto-install.
 
 ## Clarification Protocol
 
@@ -33,7 +33,7 @@ Read the repo to understand what exists -- source files, training scripts, confi
 
 ### Step 2: Guided Questions (MANDATORY -- at least 1 round)
 
-ALWAYS ask at least one round of questions, even when the goal seems obvious. Use the Question Reference below to pick the right questions for the situation.
+ALWAYS ask at least one round of questions, even when the goal seems obvious. Use the optional question appendix below only when you need help choosing the shortest useful question set for the situation.
 
 | What you need | Bad (skipping) | Good (confirming) |
 |---------------|----------------|-------------------|
@@ -48,7 +48,7 @@ Rules:
 - Each round must add new information. Never ask the same question twice.
 - Prefer multiple-choice questions over open-ended ones to reduce user effort.
 - If the user's answer introduces new ambiguity, ask about that specifically.
-- If after 5 rounds the goal is still unclear, propose the most reasonable interpretation and let the user approve or edit.
+- If the goal is still unclear after 3 rounds, propose the most reasonable interpretation and let the user approve or edit.
 - If the user says the experiment spans multiple repos, identify one **primary repo** for run-control artifacts and list any additional **companion repos** separately, each with its own scope.
 - Do not replace the structured summary with a single-line "foreground or background?" prompt. The user should see what you inferred from the repo before they are asked to approve launch.
 
@@ -64,8 +64,6 @@ Before launching, present a structured confirmation summary. The user should be 
 - Metric: `any` occurrence count (current: 47), direction: lower
 - Verify: `grep -r ":\s*any" src/ --include="*.ts" | wc -l`
 - Guard: `tsc --noEmit` must still pass
-- Required keep labels: `production-path` (only when retained results must come from a specific mechanism/path)
-- Required stop labels: `production-path`, `real-backend` (when structural success criteria matter)
 
 **Need to confirm**
 - Run until all gone, or cap at N iterations?
@@ -76,42 +74,8 @@ Before launching, present a structured confirmation summary. The user should be 
 - Log every completed experiment before the next one starts.
 - Use helper scripts for authoritative row/state updates.
 
-**Long-run note**
-- Optional hooks are not installed.
-- `background` can benefit immediately if I install them before launch.
-- The current `foreground` session cannot pick them up; that path would need a new Codex session later if you want hooks there.
-
 **Next step**
 - Choose foreground or background, then reply "go" to start, or tell me what to change.
-```
-
-#### Chinese Format
-
-```
-**已确认**
-- 目标：消除 src/**/*.ts 中所有 any 类型
-- 指标：any 出现次数（当前 47），方向：降低
-- 验证：`grep -r ":\s*any" src/ --include="*.ts" | wc -l`
-- 守护：`tsc --noEmit` 必须继续通过
-- 必需保留标签：`production-path`（仅在保留结果必须来自特定机制/路径时展示）
-- 必需停止标签：`production-path`、`real-backend`（仅在存在结构性成功条件时展示）
-
-**还需确认**
-- 跑到全部消除，还是限制在 N 次迭代？
-- 除了 tsc 还有其他安全检查吗？
-
-**运行时清单**
-- 先做 baseline，再初始化结果/状态文件。
-- 每完成一次实验，必须先落表，再开始下一次。
-- 结果行和状态更新都交给 helper 脚本。
-
-**长跑提示**
-- 目前还没有安装可选 hooks。
-- 如果我在启动前安装，`background` 可以立刻受益。
-- 当前这个 `foreground` 会话不会吃到 hooks；如果你想让前台也用上它，需要之后在新的 Codex 会话里继续。
-
-**下一步**
-- 先选择 foreground 或 background，再回复 "go" 启动，或告诉我要改什么。
 ```
 
 #### Format Rules
@@ -122,9 +86,10 @@ Before launching, present a structured confirmation summary. The user should be 
 4. The "Need to confirm" section should only contain genuine blockers, not padding.
 5. End with a clear call to action.
 6. If run mode is still undecided, list it under "Need to confirm" and then ask the user to choose foreground or background. Do not omit the summary just because run mode is the only remaining blocker.
-7. Only show "Required keep labels" and/or "Required stop labels" when the goal truly has structural success requirements beyond the numeric target.
-8. Keep the runtime checklist short. It exists to reinforce execution order, not to restate the whole protocol.
-9. Only show the optional "Long-run note" when the run is clearly long-running and `autoresearch_hooks_ctl.py status` says hooks are missing.
+7. Keep the base template minimal. Add optional blocks only when they are genuinely needed.
+8. Only show "Required keep labels" and/or "Required stop labels" when the goal truly has structural success requirements beyond the numeric target.
+9. Keep the runtime checklist short. It exists to reinforce execution order, not to restate the whole protocol.
+10. Only show the optional "Long-run note" when the run is clearly long-running and `autoresearch_hooks_ctl.py status` says hooks are missing.
 
 The user replies "go", "start", "launch", or corrects something. No field names, no YAML, no structured input required.
 
@@ -135,10 +100,9 @@ When the user replies with launch approval (`go`, `start`, `launch`, or an equiv
 1. Require an explicit run-mode choice: **foreground** or **background**.
 2. For clearly long-running runs (overnight, unattended, or broad foreground/background loops), inspect `autoresearch_hooks_ctl.py status` before the final handoff.
    - If hooks are missing, surface the short mode-shaping note **before** the user chooses `foreground` or `background`.
-   - Do not turn that note into an install decision yet; it exists to help the user choose the run mode with complete information.
 3. After the user chooses a run mode, decide whether to offer installation:
    - If the user chose **background** and hooks are missing, explain that installing now will help this background run immediately because the detached runtime will launch new nested Codex sessions after installation. Offer installation only with explicit user approval.
-   - If the user chose **foreground** and hooks are missing, explain that the current foreground session will not pick them up. Offer two clear paths: continue the current foreground run without hooks, or install hooks and continue from a **new Codex session** (for example via `codex resume`).
+   - If the user chose **foreground** and hooks are missing, explain that the current foreground session will not use them. Offer two clear paths: continue the current foreground run without hooks, or install hooks and continue the same run from a **new Codex session** by reopening/resuming the current thread there.
    - Never install hooks without explicit user approval.
 4. If the user chose **foreground**, keep the loop in the current Codex session:
    - initialize `research-results.tsv` and `autoresearch-state.json`
@@ -157,9 +121,9 @@ python3 <skill-root>/scripts/autoresearch_runtime_ctl.py launch --fresh-start ..
 
 This archives prior persistent run-control artifacts to `.prev` before the new background run begins, including `research-results.tsv`, `autoresearch-state.json`, `autoresearch-hook-context.json`, `autoresearch-launch.json`, `autoresearch-runtime.json`, and `autoresearch-runtime.log`.
 
-## Question Reference
+## Optional Question Appendix
 
-Categorized questions for common autoresearch scenarios. Pick 1-3 that are actually blocking. Prefer multiple-choice to reduce user effort.
+Use this appendix only when you need help choosing the shortest useful question set. Pick 1-3 questions that are actually blocking. Prefer multiple-choice to reduce user effort.
 
 ### Scope & Boundaries
 

@@ -101,12 +101,12 @@ Anaden:
 - un re-anchor de `SessionStart` que vuelve a inyectar la checklist corta de runtime en sesiones nuevas posteriores
 - un hook `Stop` que solo impide que Codex cierre la sesion cuando el run de autoresearch sigue pareciendo reanudable
 
-Estos hooks afectan **solo a sesiones futuras**, y solo se adjuntan a sesiones que claramente parecen trabajo de `codex-autoresearch`. Las conversaciones normales de Codex en el mismo repo quedan intactas.
+Estos hooks solo se adjuntan a sesiones posteriores de Codex que claramente parecen trabajo de `codex-autoresearch`. No cambian retroactivamente la sesion de foreground que ya esta abierta, y las conversaciones normales de Codex en el mismo repo quedan intactas.
 
 - La sesion de foreground que ya esta abierta **no** los cargara en caliente.
 - Si los instalas antes de lanzar `background`, las nuevas sesiones anidadas `codex exec` de ese run los tomaran de inmediato.
 - Los runs gestionados en `background` pasan de forma explicita sus rutas configuradas de artifacts a esas sesiones anidadas, asi que los layouts personalizados con `--results-path` / `--state-path` siguen funcionando alli.
-- Si quieres la misma proteccion para `foreground`, instalalos primero, luego abre una **nueva sesion de Codex** (por ejemplo con `codex resume`) y continua el run alli.
+- Si quieres la misma proteccion para `foreground`, instalalos primero, luego abre una **nueva sesion de Codex** y continua el mismo run alli reabriendo o reanudando el hilo actual. En la CLI esto suele ser `codex resume`; en la app, vuelve a abrir el mismo hilo en una sesion nueva.
 - Las futuras sesiones de `foreground` tambien pueden recuperar rutas personalizadas de artifacts dentro del repo mediante el hook context pointer del repositorio, pero los hooks siguen adjuntandose solo cuando la sesion claramente parece trabajo de autoresearch.
 
 ---

@@ -106,7 +106,7 @@ Esses hooks afetam **apenas sessoes futuras** e so se anexam a sessoes que clara
 - A sessao foreground que ja esta aberta **nao** vai recarrega-los a quente.
 - Se voce os instalar antes de iniciar `background`, as novas sessoes aninhadas `codex exec` desse run vao usa-los imediatamente.
 - Os runs gerenciados em `background` passam explicitamente seus caminhos configurados de artifacts para essas sessoes aninhadas, entao layouts personalizados com `--results-path` / `--state-path` continuam funcionando ali.
-- Se quiser a mesma protecao para `foreground`, instale primeiro, depois abra uma **nova sessao do Codex** (por exemplo com `codex resume`) e continue o run nela.
+- Se quiser a mesma protecao para `foreground`, instale primeiro, depois abra uma **nova sessao do Codex** e continue o mesmo run nela reabrindo ou retomando o thread atual. Na CLI isso costuma ser `codex resume`; no app, reabra o mesmo thread em uma nova sessao.
 - Sessoes futuras de `foreground` tambem conseguem recuperar caminhos personalizados de artifacts dentro do repo por meio do hook context pointer do repositorio, mas os hooks continuam se anexando apenas quando a sessao claramente parece trabalho de autoresearch.
 
 ---

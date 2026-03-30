@@ -91,8 +91,8 @@ What they do:
 Important:
 
 - Hooks are optional. The skill still works without them.
-- Hooks affect **future sessions only**, and they only attach to sessions that clearly look like `codex-autoresearch` work. Unrelated Codex conversations in the same repo are left alone.
-- The currently open foreground session will not hot-reload them. If you want hooks for `foreground`, install them first, then open a new Codex session (for example via `codex resume`) and continue the run there.
+- Hooks only attach to later Codex sessions that clearly look like `codex-autoresearch` work. They do not retroactively change the currently open foreground session, and unrelated Codex conversations in the same repo are left alone.
+- The currently open foreground session will not use them. If you want hooks for `foreground`, install them first, then open a new Codex session and continue the same run there by reopening/resuming the current thread. In the CLI this is often `codex resume`; in the app, reopen the same thread in a new session.
 - New background nested `codex exec` sessions launched after installation will pick them up automatically, so installing them before a `background` launch helps that run immediately.
 - Managed `background` runs explicitly pass their configured artifact paths into those nested sessions, so custom `--results-path` / `--state-path` layouts continue to work there.
 - Future `foreground` sessions can also recover repo-local custom artifact paths through the repo's hook context pointer, but hooks still require an explicit autoresearch session signal before they attach.

@@ -101,12 +101,12 @@ python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py inst
 - `SessionStart` 재고정: 이후 새 세션에 짧은 runtime checklist 를 다시 주입합니다
 - `Stop` hook: autoresearch run 이 아직 재개 가능해 보일 때만 Codex 가 세션을 끝내지 못하게 막습니다
 
-이 hooks 는 **앞으로 시작하는 새 세션에만** 영향을 주고, 그중에서도 `codex-autoresearch` 작업으로 분명히 보이는 세션에만 붙습니다. 같은 저장소 안의 일반 Codex 대화는 건드리지 않습니다.
+이 hooks 는 이후의 Codex 세션 중에서도 `codex-autoresearch` 작업으로 분명히 보이는 세션에만 붙습니다. 이미 열려 있는 foreground 세션을 소급해서 바꾸지는 않으며, 같은 저장소 안의 일반 Codex 대화도 건드리지 않습니다.
 
 - 이미 열려 있는 foreground 세션에는 **즉시** 반영되지 않습니다.
 - `background` 를 시작하기 전에 설치하면, 그 run 에서 새로 뜨는 중첩 `codex exec` 세션에는 바로 적용됩니다.
 - 관리되는 `background` run 은 설정된 artifact 경로를 그 중첩 세션에 명시적으로 넘기므로, 사용자 지정 `--results-path` / `--state-path` 레이아웃도 그대로 동작합니다.
-- `foreground` 에도 같은 보호를 적용하고 싶다면, 먼저 설치한 뒤 **새 Codex 세션**(예: `codex resume`)을 열고 그 새 세션에서 run 을 계속하세요.
+- `foreground` 에도 같은 보호를 적용하고 싶다면, 먼저 설치한 뒤 **새 Codex 세션**을 열고 현재 스레드를 다시 열거나 이어서 같은 run 을 계속하세요. CLI 에서는 보통 `codex resume` 이고, 앱에서는 같은 스레드를 새 세션에서 다시 열면 됩니다.
 - 이후의 `foreground` 세션도 저장소의 hook context pointer 를 통해 repo 내부 custom artifact path 를 다시 찾을 수 있지만, hooks 는 그 세션이 명확히 autoresearch 작업처럼 보일 때만 붙습니다.
 
 ---
