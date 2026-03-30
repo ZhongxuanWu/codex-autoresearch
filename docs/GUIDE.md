@@ -77,9 +77,9 @@ Once execution begins, keep the runtime contract tiny:
 - record every completed experiment before the next one starts
 - use helper scripts for authoritative log/state updates
 
-### Optional long-running hooks
+### Session hooks
 
-If you expect a `foreground` or `background` run to stay alive for a long time, you can install the optional user-level Codex hooks:
+The interactive skill auto-installs the optional user-level Codex hooks right after the initial repo scan when they are missing. If you want to preinstall them yourself:
 
 ```bash
 python3 /absolute/path/to/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
@@ -92,10 +92,10 @@ Use them as a continuity enhancer, not as a replacement for the skill:
 
 These hooks only attach to later Codex sessions that clearly look like `codex-autoresearch` work. They do not retroactively change the foreground session already open in front of you, and unrelated Codex conversations in the same repo are left alone.
 
-- The foreground session already open in front of you will **not** start using them mid-session.
-- If you install them before launching `background`, that run's new nested `codex exec` sessions will inherit them immediately.
+- If the skill just installed them in the current session, `background` can use them immediately.
+- The foreground session already open in front of you will **not** start using them mid-session. To get hooks there, reopen/resume the same thread in a new Codex session.
 - Managed `background` runs explicitly pass their configured artifact paths into those nested sessions, so custom `--results-path` / `--state-path` layouts continue to work there.
-- If you want hooks for `foreground`, install them first, then open a **new Codex session** and continue the same run there by reopening/resuming the current thread. In the CLI this is often `codex resume`; in the app, reopen the same thread in a new session.
+- In the CLI this reopen/resume path is often `codex resume`; in the app, reopen the same thread in a new session.
 - Future `foreground` sessions can also recover repo-local custom artifact paths through the repo's hook context pointer, but hooks still require an explicit autoresearch session signal before they attach.
 
 ---

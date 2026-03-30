@@ -88,7 +88,7 @@ Siehe [INSTALL.md](../INSTALL.md) fuer weitere Installationsoptionen. Siehe [GUI
 
 ### Optionale Hooks fuer lange Laufzeiten
 
-Wenn ein `foreground`- oder `background`-Lauf voraussichtlich lange aktiv bleiben soll, koennen Sie die optionalen benutzerweiten Codex-Hooks installieren:
+Das interaktive Skill installiert die optionalen benutzerweiten Codex-Hooks jetzt direkt nach dem ersten Repo-Scan automatisch, wenn sie fehlen. Wenn Sie sie manuell vorab installieren oder pruefen wollen:
 
 ```bash
 python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
@@ -104,7 +104,8 @@ Diese Hooks haengen sich nur an spaetere Codex-Sitzungen, die klar wie `codex-au
 - Die bereits geoeffnete Foreground-Sitzung wird sie **nicht** per Hot-Reload uebernehmen.
 - Wenn Sie sie vor dem Start von `background` installieren, uebernehmen die neuen verschachtelten `codex exec`-Sitzungen dieses Laufs sie sofort.
 - Verwaltete `background`-Laeufe reichen ihre konfigurierten Artifact-Pfade explizit an diese verschachtelten Sitzungen weiter, daher funktionieren benutzerdefinierte `--results-path`- / `--state-path`-Layouts dort weiterhin.
-- Wenn Sie den gleichen Schutz fuer `foreground` wollen, installieren Sie zuerst, oeffnen Sie dann eine **neue Codex-Sitzung** und setzen Sie denselben Lauf dort fort, indem Sie den aktuellen Thread wieder oeffnen oder fortsetzen. In der CLI ist das oft `codex resume`; in der App oeffnen Sie denselben Thread in einer neuen Sitzung.
+- Wenn das Skill die Hooks gerade in der aktuellen Sitzung installiert hat, kann `background` sie sofort nutzen.
+- Die bereits offene `foreground`-Sitzung uebernimmt sie nicht mitten in der Sitzung. Wenn Sie Hooks auch dort wollen, oeffnen Sie eine **neue Codex-Sitzung** und setzen Sie denselben Lauf fort, indem Sie den aktuellen Thread wieder oeffnen oder fortsetzen. In der CLI ist das oft `codex resume`; in der App oeffnen Sie denselben Thread in einer neuen Sitzung.
 - Zukuenftige `foreground`-Sitzungen koennen repo-lokale benutzerdefinierte Artifact-Pfade auch ueber den Hook-Context-Pointer des Repos wiederfinden, aber die Hooks haengen sich weiterhin nur an, wenn die Sitzung klar wie autoresearch aussieht.
 
 ---

@@ -88,9 +88,9 @@ Chaque amelioration s'accumule. Chaque echec est annule. Tout est journalise.
 
 Voir [INSTALL.md](../INSTALL.md) pour plus d'options d'installation. Voir [GUIDE.md](../GUIDE.md) pour le guide complet.
 
-### Hooks optionnels pour les longues executions
+### Hooks de session
 
-Si vous vous attendez a ce qu'une execution `foreground` ou `background` reste active longtemps, vous pouvez installer les hooks Codex optionnels au niveau utilisateur :
+Le skill interactif installe maintenant automatiquement les hooks Codex optionnels juste apres le premier scan du depot lorsqu'ils manquent. Si vous voulez les preinstaller ou les inspecter manuellement :
 
 ```bash
 python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
@@ -106,7 +106,8 @@ Ces hooks ne s'attachent qu'aux sessions Codex ulterieures qui ressemblent clair
 - La session foreground deja ouverte **ne** les rechargera **pas** a chaud.
 - Si vous les installez avant de lancer `background`, les nouvelles sessions imbriquees `codex exec` de cette execution les prendront en compte immediatement.
 - Les executions gerees en `background` transmettent explicitement leurs chemins d'artifacts configures a ces sessions imbriquees, donc les layouts personnalises avec `--results-path` / `--state-path` continuent d'y fonctionner.
-- Si vous voulez la meme protection pour `foreground`, installez-les d'abord, puis ouvrez une **nouvelle session Codex** et poursuivez le meme run en rouvrant ou en reprenant le thread actuel. En CLI, c'est souvent `codex resume` ; dans l'application, rouvrez le meme thread dans une nouvelle session.
+- Si le skill vient juste d'installer les hooks dans la session courante, `background` peut en profiter immediatement.
+- La session `foreground` deja ouverte ne commencera pas a les utiliser en plein milieu de session. Si vous voulez aussi les hooks la-bas, ouvrez une **nouvelle session Codex** et poursuivez le meme run en rouvrant ou en reprenant le thread actuel. En CLI, c'est souvent `codex resume` ; dans l'application, rouvrez le meme thread dans une nouvelle session.
 - Les futures sessions `foreground` peuvent aussi retrouver les chemins d'artifacts personnalises dans le repo via le hook context pointer du depot, mais les hooks ne s'attachent toujours que lorsque la session ressemble clairement a du travail autoresearch.
 
 ---

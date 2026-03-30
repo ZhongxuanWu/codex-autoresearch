@@ -88,9 +88,9 @@ Las mejoras se acumulan. Los fallos se revierten. Todo queda registrado.
 
 Mas opciones de instalacion en [INSTALL.md](../INSTALL.md). Manual completo en [GUIDE.md](../GUIDE.md).
 
-### Hooks opcionales para ejecuciones largas
+### Hooks de sesion
 
-Si esperas que una ejecucion en `foreground` o `background` permanezca activa durante mucho tiempo, puedes instalar los hooks opcionales de Codex a nivel de usuario:
+El skill interactivo ahora instala automaticamente los hooks opcionales de Codex justo despues del primer escaneo del repo cuando faltan. Si quieres preinstalarlos o inspeccionarlos manualmente:
 
 ```bash
 python3 .agents/skills/codex-autoresearch/scripts/autoresearch_hooks_ctl.py install
@@ -106,7 +106,8 @@ Estos hooks solo se adjuntan a sesiones posteriores de Codex que claramente pare
 - La sesion de foreground que ya esta abierta **no** los cargara en caliente.
 - Si los instalas antes de lanzar `background`, las nuevas sesiones anidadas `codex exec` de ese run los tomaran de inmediato.
 - Los runs gestionados en `background` pasan de forma explicita sus rutas configuradas de artifacts a esas sesiones anidadas, asi que los layouts personalizados con `--results-path` / `--state-path` siguen funcionando alli.
-- Si quieres la misma proteccion para `foreground`, instalalos primero, luego abre una **nueva sesion de Codex** y continua el mismo run alli reabriendo o reanudando el hilo actual. En la CLI esto suele ser `codex resume`; en la app, vuelve a abrir el mismo hilo en una sesion nueva.
+- Si el skill acaba de instalar los hooks en la sesion actual, `background` puede usarlos de inmediato.
+- La sesion de `foreground` que ya esta abierta no empezara a usarlos a mitad de la sesion. Si quieres hooks tambien ahi, abre una **nueva sesion de Codex** y continua el mismo run reabriendo o reanudando el hilo actual. En la CLI esto suele ser `codex resume`; en la app, vuelve a abrir el mismo hilo en una sesion nueva.
 - Las futuras sesiones de `foreground` tambien pueden recuperar rutas personalizadas de artifacts dentro del repo mediante el hook context pointer del repositorio, pero los hooks siguen adjuntandose solo cuando la sesion claramente parece trabajo de autoresearch.
 
 ---
